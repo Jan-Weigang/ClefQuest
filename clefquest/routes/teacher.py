@@ -28,62 +28,62 @@ def teacher_dashboard():
 
 
 
-@teacher_bp.route('/group/<string:group_id>', methods=['GET'])
-@is_teacher
-def teacher_group_details(group_id):
-    """
-    Displays a table of all students in a group with their quests and overall percentages.
-    """
-    try:
-        # Fetch the group
-        group = Group.query.get_or_404(group_id)
+# @teacher_bp.route('/group/<string:group_id>', methods=['GET'])
+# @is_teacher
+# def teacher_group_details(group_id):
+#     """
+#     Displays a table of all students in a group with their quests and overall percentages.
+#     """
+#     try:
+#         # Fetch the group
+#         group = Group.query.get_or_404(group_id)
 
-        # Fetch all tests in the group
-        tests = Test.query.filter_by(group_id=group.id).all()
-        test_ids = [test.id for test in tests]
+#         # Fetch all tests in the group
+#         tests = Test.query.filter_by(group_id=group.id).all()
+#         test_ids = [test.id for test in tests]
 
-        # Fetch all quests for the group's tests
-        quests = Quest.query.filter(Quest.test_id.in_(test_ids)).all()
+#         # Fetch all quests for the group's tests
+#         quests = Quest.query.filter(Quest.test_id.in_(test_ids)).all()
 
-        # Organize data by student
-        student_data = {}
-        for quest in quests:
-            student_id = quest.student_id
-            if student_id not in student_data:
-                student_data[student_id] = {
-                    "student_name": quest.student_name,
-                    "quests": [],
-                    "total_tasks": 0,
-                    "correct_tasks": 0
-                }
-            # Add quest details
-            student_data[student_id]["quests"].append(quest)
+#         # Organize data by student
+#         student_data = {}
+#         for quest in quests:
+#             student_id = quest.student_id
+#             if student_id not in student_data:
+#                 student_data[student_id] = {
+#                     "student_name": quest.student_name,
+#                     "quests": [],
+#                     "total_tasks": 0,
+#                     "correct_tasks": 0
+#                 }
+#             # Add quest details
+#             student_data[student_id]["quests"].append(quest)
 
-            # Calculate total and correct tasks
-            for task in quest.tasks:
-                student_data[student_id]["total_tasks"] += 1
-                if task.is_correct:
-                    student_data[student_id]["correct_tasks"] += 1
+#             # Calculate total and correct tasks
+#             for task in quest.tasks:
+#                 student_data[student_id]["total_tasks"] += 1
+#                 if task.is_correct:
+#                     student_data[student_id]["correct_tasks"] += 1
 
-        # Calculate overall percentages
-        for student in student_data.values():
-            if student["total_tasks"] > 0:
-                student["percentage"] = round(
-                    (student["correct_tasks"] / student["total_tasks"]) * 100, 2
-                )
-            else:
-                student["percentage"] = 0.0
+#         # Calculate overall percentages
+#         for student in student_data.values():
+#             if student["total_tasks"] > 0:
+#                 student["percentage"] = round(
+#                     (student["correct_tasks"] / student["total_tasks"]) * 100, 2
+#                 )
+#             else:
+#                 student["percentage"] = 0.0
 
-        return render_template(
-            'teacher/group_details.html',
-            group=group,
-            student_data=student_data
-        )
+#         return render_template(
+#             'teacher/group_details.html',
+#             group=group,
+#             student_data=student_data
+#         )
 
-    except Exception as e:
-        db.session.rollback()
-        print(f"Error: {str(e)}")
-        return render_template("error.html", error_message=str(e)), 500
+#     except Exception as e:
+#         db.session.rollback()
+#         print(f"Error: {str(e)}")
+#         return render_template("error.html", error_message=str(e)), 500
 
 
 
@@ -167,6 +167,65 @@ def teacher_tests():
         db.session.rollback()
         print(f"Error: {str(e)}")
         return render_template("error.html", error_message=str(e)), 500
+
+
+
+@teacher_bp.route("/teacher/test/<test_id>")
+@is_teacher
+def teacher_test_details(test_id):
+    test = Test.query.get_or_404(test_id)
+    quests = Quest.query.filter_by(test_id=test_id).all()
+
+    student_data = {}
+    for quest in quests:
+        sid = quest.student_id
+        if sid not in student_data:
+            student_data[sid] = {
+                "student_name": quest.student_name,
+                "quests": [],
+                "total_tasks": 0,
+                "correct_tasks": 0,
+            }
+
+        student_data[sid]["quests"].append(quest)
+        for trial in quest.tasks:
+            student_data[sid]["total_tasks"] += 1
+            if trial.is_correct:
+                student_data[sid]["correct_tasks"] += 1
+
+    for student in student_data.values():
+        student["percentage"] = round(
+            (student["correct_tasks"] / student["total_tasks"]) * 100, 2
+        ) if student["total_tasks"] > 0 else 0.0
+
+    return render_template("teacher/test_details.html", test=test, student_data=student_data)
+
+
+
+@teacher_bp.route("/teacher/group/<group_id>")
+@is_teacher
+def teacher_group_details(group_id):
+    group = Group.query.get_or_404(group_id)
+    tests = Test.query.filter_by(group_id=group_id).all()
+    quests = Quest.query.join(Test).filter(Test.group_id == group_id).all()
+
+    student_map = {}
+    for quest in quests:
+        sid = quest.student_id
+        tid = quest.test_id
+        if sid not in student_map:
+            student_map[sid] = {
+                "student_name": quest.student_name,
+                "results": {t.id: None for t in tests}
+            }
+
+        correct = sum(1 for t in quest.tasks if t.is_correct)
+        total = len(quest.tasks)
+        pct = (correct / total) * 100 if total else 0
+        student_map[sid]["results"][tid] = round(pct, 2)
+
+    return render_template("teacher/group_details.html", group=group, tests=tests, students=student_map)
+
 
 
 

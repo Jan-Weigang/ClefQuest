@@ -105,12 +105,15 @@
                     {% for test in tests %}
                     <tr>
                         <td>
-                            <a href="{{ url_for('teacher.teacher_group_details', group_id=test.group.id) }}">
+                            <a href="{{ url_for('teacher.teacher_test_details', test_id=test.id) }}">
                                 {{ test.title }}
                             </a>
                         </td>
                         <td>{{ test.description }}</td>
-                        <td>{{ test.group.name }}</td>
+                        <td>
+                            <a href="{{ url_for('teacher.teacher_group_details', group_id=test.group.id) }}">
+                                {{ test.group.name }}
+                            </a></td>
                         <td>{{ test.difficulty }}</td>
                         <td>
                             {% if test.open %}
