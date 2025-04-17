@@ -61,3 +61,4 @@ MANIFEST
 # Flask stuff:
 instance/
 .webassets-cache
+.tar
