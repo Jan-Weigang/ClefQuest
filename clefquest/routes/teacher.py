@@ -202,6 +202,8 @@ def teacher_test_details(test_id):
 
 
 
+from collections import defaultdict
+
 @teacher_bp.route("/teacher/group/<group_id>")
 @is_teacher
 def teacher_group_details(group_id):
@@ -216,15 +218,44 @@ def teacher_group_details(group_id):
         if sid not in student_map:
             student_map[sid] = {
                 "student_name": quest.student_name,
-                "results": {t.id: None for t in tests}
+                "results": {t.id: defaultdict(lambda: {"correct": 0, "total": 0}) for t in tests}
             }
 
-        correct = sum(1 for t in quest.tasks if t.is_correct)
-        total = len(quest.tasks)
-        pct = (correct / total) * 100 if total else 0
-        student_map[sid]["results"][tid] = round(pct, 2)
+        for trial in quest.tasks:
+            stage_id = trial.stage_id
+            correct = 1 if trial.is_correct else 0
+            student_map[sid]["results"][tid][stage_id]["correct"] += correct
+            student_map[sid]["results"][tid][stage_id]["total"] += 1
 
-    return render_template("teacher/group_details.html", group=group, tests=tests, students=student_map)
+    # Convert result dict to a list of %s in the order of test.stages
+    for sid, student in student_map.items():
+        for test in tests:
+            stage_results = []
+            for stage in test.stages:
+                stats = student["results"][test.id][stage.id]
+                total = stats["total"]
+                percent = (stats["correct"] / total * 100) if total else 0
+                stage_results.append(round(percent, 2))
+            student["results"][test.id] = stage_results
+
+    stage_count = {test.id: len(test.stages) for test in tests}
+    test_stages = {test.id: test.stages for test in tests}
+
+    stage_trial_count = defaultdict(int)
+    for quest in quests:
+        for trial in quest.tasks:
+            stage_trial_count[trial.stage_id] += 1
+
+
+    return render_template(
+        "teacher/group_details.html",
+        group=group,
+        tests=tests,
+        students=student_map,
+        stage_count=stage_count,
+        test_stages=test_stages,
+        stage_trial_count=stage_trial_count
+    )
 
 
 

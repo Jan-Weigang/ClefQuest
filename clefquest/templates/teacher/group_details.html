@@ -33,7 +33,7 @@
         }
 
         table th, table td {
-            padding: 0.75rem;
+            padding: 0.5rem;
             border: 1px solid #ddd;
             text-align: left;
         }
@@ -58,49 +58,75 @@
         <p>Übersicht der Gesamtergebnisse aller Quests dieser Gruppe:</p>
         <table>
             <thead>
-                
                 <tr>
-                  <th>Schüler</th>
+                  <th rowspan="2">Schüler</th>
                   {% for test in tests %}
-                    <th>
-                      {{ test.title }}
-                    </th>
+                    <th colspan="{{ stage_count[test.id] }}">{{ test.title }}</th>
+                  {% endfor %}
+                  <th rowspan="2">Gesamt (%)</th>
+                  <th rowspan="2">Note</th>
+                </tr>
+                <tr>
+                  {% for test in tests %}
+                    {% for stage in test_stages[test.id] %}
+                      <th style="padding: .2rem; font-size: .7rem; font-weight: 400;">{{ stage_trial_count[stage.id] }}x {{ stage.task_type }}</th>
                     {% endfor %}
+                  {% endfor %}
+                </tr>
+                <tr>
+                  <th style="padding: 0 0 0 .5rem;">Faktor:</th>
+                  {% set col = namespace(val=0) %}
+                  {% for test in tests %}
+                    {% for stage in test_stages[test.id] %}
+                      <th style="padding: 0; text-align: center;">
+                        <input type="number" step="1" value="1" min="0" max="9" style="width: 4ch;"
+                               class="scaling" 
+                               data-col="{{ col.val }}"
+                               data-stage="{{ stage.task_type }}">
+                      </th>
+                      {% set col.val = col.val + 1 %}
+                    {% endfor %}
+                  {% endfor %}
                   <th></th>
                   <th></th>
                 </tr>
-                <tr>
-                    <th>Faktor:</th>
-                    {% for test in tests %}
-                      <th>
-                        <input type="number" style="width: 8ch;" step="1" value="1" class="scaling" data-col="{{ loop.index0 }}">
-                      </th>
-                      {% endfor %}
-                    <th>Gesamt (%)</th>
-                    <th>Note</th>
-                  </tr>
-                
               </thead>
+              
+              
               
               <tbody>
                 {% for sid, student in students.items() %}
                   <tr>
                     <td>{{ student.student_name }}</td>
+                    {% set col = namespace(val=0) %}
                     {% for test in tests %}
-                      <td class="pct" data-col="{{ loop.index0 }}">{{ student.results[test.id] or 0 }}</td>
+                      {% for pct in student.results[test.id] %}
+                        <td class="pct" data-col="{{ col.val }}" data-value="{{ pct }}" style="font-size: .8rem; font-style: italic; color: #888">
+                            {{ "%.0f"|format(pct) }}
+                        </td>
+                        {% set col.val = col.val + 1 %}
+                      {% endfor %}
                     {% endfor %}
                     <td class="total"></td>
                     <td class="grade"></td>
                   </tr>
                 {% endfor %}
               </tbody>
+              
+              
         </table>
+    </div>
+    <div class="container">
+        <div class="form-footer">
+            <button onclick="downloadCSV()" class="submit-btn">CSV exportieren</button>
+        </div>
     </div>
     <div class="container">
         <div class="form-footer">
             <a href="{{ url_for('teacher.teacher_dashboard') }}" class="submit-btn">Zurück zur Hauptseite</a>
         </div>
     </div>
+ 
 
     <script>
         //function getGrade(percent) {
@@ -139,7 +165,9 @@
                 row.querySelectorAll('.pct').forEach(cell => {
                     const col = cell.dataset.col;
                     const scale = parseFloat(document.querySelector(`.scaling[data-col="${col}"]`).value) || 0;
-                    const value = parseFloat(cell.textContent) || 0;
+                    //const value = parseFloat(cell.textContent) || 0;
+                    const value = parseFloat(cell.dataset.value) || 0;
+
                     total += value * scale;
                     totalScale += scale;
                 });
@@ -148,17 +176,79 @@
                 row.querySelector('.grade').textContent = getGrade(percent);
             });
         }
-        document.querySelectorAll('.scaling').forEach(input => {
-            input.addEventListener('input', () => {
-                calculate_results();
-            });
-        });
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.scaling').forEach(input => {
-                input.addEventListener('input', calculate_results);
+                input.addEventListener('change', calculate_results);
             });
             calculate_results(); // Run once at page load
         });
+
+
+        function downloadCSV() {
+            const rows = [];
+        
+            // First row: header with stage task_types
+            const headers = ["Schüler"];
+            const scalingInputs = document.querySelectorAll(".scaling");
+            scalingInputs.forEach(input => {
+                const label = input.dataset.stage || "Stage";
+                headers.push(label);
+            });
+            headers.push("Gesamt (%)", "Note");
+            rows.push(headers);
+        
+            // Second row: scaling values
+            const scalings = ["Faktor:"];
+            scalingInputs.forEach(input => {
+                scalings.push(input.value || "1");
+            });
+            scalings.push("", "");  // For total & grade columns
+            rows.push(scalings);
+        
+            // Data rows
+            document.querySelectorAll("tbody tr").forEach(row => {
+                const cols = [];
+        
+                // Student name
+                cols.push(row.querySelector("td")?.textContent.trim());
+        
+                // Stage results
+                row.querySelectorAll(".pct").forEach(cell => {
+                    cols.push(cell.dataset.value || "");
+                });
+        
+                // Total and grade
+                cols.push(row.querySelector(".total")?.textContent || "");
+                cols.push(row.querySelector(".grade")?.textContent || "");
+        
+                rows.push(cols);
+            });
+        
+            // Convert all values: "." → "," for decimals
+            const csvContent = '\uFEFF' + rows.map(row =>
+            row.map(cell => {
+                if (!isNaN(cell) && cell.toString().includes(".")) {
+                    return cell.toString().replace(".", ",");
+                }
+                return cell;
+            }).join(";")
+            ).join("\n");
+        
+            // Filename with group and timestamp
+            const groupTitle = document.querySelector("h1")?.textContent.trim().replace(/\s+/g, "_") || "gruppe";
+            const date = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
+            const filename = `${groupTitle}_${date}.csv`;
+        
+            // Trigger download
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const link = document.createElement("a");
+            link.setAttribute("href", URL.createObjectURL(blob));
+            link.setAttribute("download", filename);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+            
     </script>
 </body>
 </html>
