@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tasks Completed</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 2rem;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4caf50;
+        }
+
+        .summary {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .summary p {
+            font-size: 1.2rem;
+            color: #555;
+        }
+
+        .quest-list {
+            max-width: 600px;
+            margin: 0 auto;
+            border-collapse: collapse;
+            width: 100%;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .quest-list th, .quest-list td {
+            padding: 1rem;
+            text-align: left;
+        }
+
+        .quest-list th {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .quest-list tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .quest-list tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .quest-list td.correct {
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        .quest-list td.incorrect {
+            color: #f44336;
+            font-weight: bold;
+        }
+
+        .percentage {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 1.5rem;
+            color: #333;
+        }
+
+        .percentage span {
+            font-weight: bold;
+            color: #4caf50;
+        }
+    </style>
+</head>
+<body>
+    <h1>All Tasks Completed!</h1>
+    <div class="summary">
+        <p>You completed {{ total_tasks }} tasks.</p>
+    </div>
+    <table class="quest-list">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Deine Antwort</th>
+                <th>Richtige Antwort</th>
+                <th>Wertung</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in trials %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ task.given_answer }}</td>
+                <td>{{ task.correct_answer }}</td>
+                <td class="{{ 'correct' if task.is_correct else 'incorrect' }}">
+                    {{ 'Richtig' if task.is_correct else 'Falsch' }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="percentage">
+        You answered <span>{{ correct_percentage }}%</span> of the tasks correctly.
+    </div>
+</body>
+</html>

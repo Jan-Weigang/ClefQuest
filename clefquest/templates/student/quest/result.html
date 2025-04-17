@@ -1,0 +1,53 @@
+<div class="result-container">
+    {% if is_correct %}
+        <p class="result correct">Richtig! 🎉</p>
+    {% else %}
+        <p class="result incorrect">Falsch! ❌</p>
+        <p class="result incorrect">Richtige Antwort: <b>{{ correct_answer }}</b>.</p>
+    {% endif %}
+    <button onclick="window.location.reload()" class="reload-button">Weiter</button>
+</div>
+
+<style>
+    .result-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        font-family: Arial, sans-serif;
+    }
+    .result-container p {
+        margin: 0;
+        display: block;
+    }
+
+    .result {
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+
+    .result.correct {
+        color: green;
+    }
+
+    .result.incorrect {
+        color: red;
+    }
+
+    .reload-button {
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        font-weight: bold;
+        color: #ffffff;
+        background-color: #007bff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .reload-button:hover {
+        background-color: #0056b3;
+    }
+</style>

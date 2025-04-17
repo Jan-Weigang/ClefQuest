@@ -1,0 +1,687 @@
+{
+  "note-reading": [
+    {"display_name": "C", "note": "C2", "difficulty": 3},
+    {"display_name": "Cis", "note": "C#2", "difficulty": 3},
+    {"display_name": "Des", "note": "Db2", "difficulty": 3},
+    {"display_name": "D", "note": "D2", "difficulty": 3},
+    {"display_name": "Dis", "note": "D#2", "difficulty": 3},
+    {"display_name": "Es", "note": "Eb2", "difficulty": 3},
+    {"display_name": "E", "note": "E2", "difficulty": 3},
+    {"display_name": "F", "note": "F2", "difficulty": 3},
+    {"display_name": "Fis", "note": "F#2", "difficulty": 3},
+    {"display_name": "Ges", "note": "Gb2", "difficulty": 3},
+    {"display_name": "G", "note": "G2", "difficulty": 3},
+    {"display_name": "Gis", "note": "G#2", "difficulty": 3},
+    {"display_name": "As", "note": "Ab2", "difficulty": 3},
+    {"display_name": "A", "note": "A2", "difficulty": 3},
+    {"display_name": "Ais", "note": "A#2", "difficulty": 3},
+    {"display_name": "B", "note": "Bb2", "difficulty": 3},
+    {"display_name": "H", "note": "B2", "difficulty": 3},
+    {"display_name": "c", "note": "C3", "difficulty": 2},
+    {"display_name": "cis", "note": "C#3", "difficulty": 2},
+    {"display_name": "des", "note": "Db3", "difficulty": 2},
+    {"display_name": "d", "note": "D3", "difficulty": 2},
+    {"display_name": "dis", "note": "D#3", "difficulty": 2},
+    {"display_name": "es", "note": "Eb3", "difficulty": 2},
+    {"display_name": "e", "note": "E3", "difficulty": 2},
+    {"display_name": "f", "note": "F3", "difficulty": 2},
+    {"display_name": "fis", "note": "F#3", "difficulty": 2},
+    {"display_name": "ges", "note": "Gb3", "difficulty": 2},
+    {"display_name": "g", "note": "G3", "difficulty": 2},
+    {"display_name": "gis", "note": "G#3", "difficulty": 2},
+    {"display_name": "as", "note": "Ab3", "difficulty": 2},
+    {"display_name": "a", "note": "A3", "difficulty": 2},
+    {"display_name": "ais", "note": "A#3", "difficulty": 2},
+    {"display_name": "b", "note": "Bb3", "difficulty": 2},
+    {"display_name": "h", "note": "B3", "difficulty": 2},
+    {"display_name": "c'", "note": "C4", "difficulty": 1},
+    {"display_name": "cis'", "note": "C#4", "difficulty": 1},
+    {"display_name": "des'", "note": "Db4", "difficulty": 1},
+    {"display_name": "d'", "note": "D4", "difficulty": 1},
+    {"display_name": "dis'", "note": "D#4", "difficulty": 1},
+    {"display_name": "es'", "note": "Eb4", "difficulty": 1},
+    {"display_name": "e'", "note": "E4", "difficulty": 1},
+    {"display_name": "f'", "note": "F4", "difficulty": 1},
+    {"display_name": "fis'", "note": "F#4", "difficulty": 1},
+    {"display_name": "ges'", "note": "Gb4", "difficulty": 1},
+    {"display_name": "g'", "note": "G4", "difficulty": 1},
+    {"display_name": "gis'", "note": "G#4", "difficulty": 1},
+    {"display_name": "as'", "note": "Ab4", "difficulty": 1},
+    {"display_name": "a'", "note": "A4", "difficulty": 1},
+    {"display_name": "ais'", "note": "A#4", "difficulty": 1},
+    {"display_name": "b'", "note": "Bb4", "difficulty": 1},
+    {"display_name": "h'", "note": "B4", "difficulty": 1},
+    {"display_name": "C''", "note": "C5", "difficulty": 1},
+    {"display_name": "cis''", "note": "C#5", "difficulty": 2},
+    {"display_name": "des''", "note": "Db5", "difficulty": 2},
+    {"display_name": "d''", "note": "D5", "difficulty": 2},
+    {"display_name": "dis''", "note": "D#5", "difficulty": 2},
+    {"display_name": "es''", "note": "Eb5", "difficulty": 2},
+    {"display_name": "e''", "note": "E5", "difficulty": 2},
+    {"display_name": "f''", "note": "F5", "difficulty": 2},
+    {"display_name": "fis''", "note": "F#5", "difficulty": 2},
+    {"display_name": "ges''", "note": "Gb5", "difficulty": 2},
+    {"display_name": "g''", "note": "G5", "difficulty": 2},
+    {"display_name": "gis''", "note": "G#5", "difficulty": 2},
+    {"display_name": "as''", "note": "Ab5", "difficulty": 2},
+    {"display_name": "a''", "note": "A5", "difficulty": 2},
+    {"display_name": "ais''", "note": "A#5", "difficulty": 2},
+    {"display_name": "b''", "note": "Bb5", "difficulty": 2},
+    {"display_name": "h''", "note": "B5", "difficulty": 2},
+    {"display_name": "c'''", "note": "C6", "difficulty": 2}
+  ],
+  "triads": [
+      {
+          "name": "C Major",
+          "display_name": "C-Dur",
+          "notes": ["C4", "E4", "G4"],
+          "symbol": "C",
+          "inversions": {
+              "root": ["C4", "E4", "G4"],
+              "first": ["E4", "G4", "C5"],
+              "second": ["G4", "C5", "E5"]
+          },
+          "difficulty": "1"
+      },
+      {
+          "name": "C# Major",
+          "display_name": "Cis-Dur",
+          "notes": ["C#4", "E#4", "G#4"],
+          "symbol": "C#",
+          "inversions": {
+              "root": ["C#4", "E#4", "G#4"],
+              "first": ["E#4", "G#4", "C#5"],
+              "second": ["G#4", "C#5", "E#5"]
+          },
+          "difficulty": "3"
+      },
+      {
+          "name": "Db Major",
+          "display_name": "Des-Dur",
+          "notes": ["Db4", "F4", "Ab4"],
+          "symbol": "Db",
+          "inversions": {
+              "root": ["Db4", "F4", "Ab4"],
+              "first": ["F4", "Ab4", "Db5"],
+              "second": ["Ab4", "Db5", "F5"]
+          },
+          "difficulty": "2"
+      },
+      {
+          "name": "D Major",
+          "display_name": "D-Dur",
+          "notes": ["D4", "F#4", "A4"],
+          "symbol": "D",
+          "inversions": {
+              "root": ["D4", "F#4", "A4"],
+              "first": ["F#4", "A4", "D5"],
+              "second": ["A4", "D5", "F#5"]
+          },
+          "difficulty": "1"
+      },
+      {
+          "name": "D# Major",
+          "display_name": "Dis-Dur",
+          "notes": ["D#4", "f##4", "A#4"],
+          "symbol": "D#",
+          "inversions": {
+              "root": ["D#4", "f##4", "A#4"],
+              "first": ["f##4", "A#4", "D#5"],
+              "second": ["A#4", "D#5", "f##5"]
+          },
+          "difficulty": "3"
+      },
+      {
+          "name": "Eb Major",
+          "display_name": "Es-Dur",
+          "notes": ["Eb4", "G4", "Bb4"],
+          "symbol": "Eb",
+          "inversions": {
+              "root": ["Eb4", "G4", "Bb4"],
+              "first": ["G4", "Bb4", "Eb5"],
+              "second": ["Bb4", "Eb5", "G5"]
+          },
+          "difficulty": "2"
+      },
+      {
+          "name": "E Major",
+          "display_name": "E-Dur",
+          "notes": ["E4", "G#4", "B4"],
+          "symbol": "E",
+          "inversions": {
+              "root": ["E4", "G#4", "B4"],
+              "first": ["G#4", "B4", "E5"],
+              "second": ["B4", "E5", "G#5"]
+          },
+          "difficulty": "1"
+      },
+      {
+          "name": "F Major",
+          "display_name": "F-Dur",
+          "notes": ["F4", "A4", "C5"],
+          "symbol": "F",
+          "inversions": {
+              "root": ["F4", "A4", "C5"],
+              "first": ["A4", "C5", "F5"],
+              "second": ["C5", "F5", "A5"]
+          },
+          "difficulty": "1"
+      },
+      {
+          "name": "F# Major",
+          "display_name": "Fis-Dur",
+          "notes": ["F#4", "A#4", "C#5"],
+          "symbol": "F#",
+          "inversions": {
+              "root": ["F#4", "A#4", "C#5"],
+              "first": ["A#4", "C#5", "F#5"],
+              "second": ["C#5", "F#5", "A#5"]
+          },
+          "difficulty": "2"
+      },
+      {
+          "name": "Gb Major",
+          "display_name": "Ges-Dur",
+          "notes": ["Gb4", "Bb4", "Db5"],
+          "symbol": "Gb",
+          "inversions": {
+              "root": ["Gb4", "Bb4", "Db5"],
+              "first": ["Bb4", "Db5", "Gb5"],
+              "second": ["Db5", "Gb5", "Bb5"]
+          },
+          "difficulty": "2"
+      },
+      {
+          "name": "G Major",
+          "display_name": "G-Dur",
+          "notes": ["G4", "B4", "D5"],
+          "symbol": "G",
+          "inversions": {
+              "root": ["G4", "B4", "D5"],
+              "first": ["B4", "D5", "G5"],
+              "second": ["D5", "G5", "B5"]
+          },
+          "difficulty": "1"
+      },
+      {
+          "name": "G# Major",
+          "display_name": "Gis-Dur",
+          "notes": ["G#4", "B#4", "D#5"],
+          "symbol": "G#",
+          "inversions": {
+              "root": ["G#4", "B#4", "D#5"],
+              "first": ["B#4", "D#5", "G#5"],
+              "second": ["D#5", "G#5", "B#5"]
+          },
+          "difficulty": "3"
+      },
+      {
+          "name": "Ab Major",
+          "display_name": "As-Dur",
+          "notes": ["Ab4", "C5", "Eb5"],
+          "symbol": "Ab",
+          "inversions": {
+              "root": ["Ab4", "C5", "Eb5"],
+              "first": ["C5", "Eb5", "Ab5"],
+              "second": ["Eb5", "Ab5", "C6"]
+          },
+          "difficulty": "2"
+      },
+      {
+          "name": "A Major",
+          "display_name": "A-Dur",
+          "notes": ["A4", "C#5", "E5"],
+          "symbol": "A",
+          "inversions": {
+              "root": ["A4", "C#5", "E5"],
+              "first": ["C#5", "E5", "A5"],
+              "second": ["E5", "A5", "C#6"]
+          },
+          "difficulty": "1"
+      },
+      {
+          "name": "A# Major",
+          "display_name": "Ais-Dur",
+          "notes": ["A#4", "C##5", "E#5"],
+          "symbol": "A#",
+          "inversions": {
+              "root": ["A#4", "C##5", "E#5"],
+              "first": ["C##5", "E#5", "A#5"],
+              "second": ["E#5", "A#5", "C##6"]
+          },
+          "difficulty": "3"
+      },
+      {
+          "name": "Bb Major",
+          "display_name": "B-Dur",
+          "notes": ["Bb4", "D5", "F5"],
+          "symbol": "Bb",
+          "inversions": {
+              "root": ["Bb4", "D5", "F5"],
+              "first": ["D5", "F5", "Bb5"],
+              "second": ["F5", "Bb5", "D6"]
+          },
+          "difficulty": "1"
+      },
+      {
+          "name": "H Major",
+          "display_name": "H-Dur",
+          "notes": ["B4", "D#5", "F#5"],
+          "symbol": "H",
+          "inversions": {
+              "root": ["B4", "D#5", "F#5"],
+              "first": ["D#5", "F#5", "B5"],
+              "second": ["F#5", "B5", "D#6"]
+          },
+          "difficulty": "2"
+      },
+      {
+          "name": "C Minor",
+          "display_name": "C-Moll",
+          "notes": ["C4", "Eb4", "G4"],
+          "symbol": "Cm",
+          "inversions": {
+              "root": ["C4", "Eb4", "G4"],
+              "first": ["Eb4", "G4", "C5"],
+              "second": ["G4", "C5", "Eb5"]
+          },
+          "difficulty": "1"
+      },
+      {
+          "name": "C# Minor",
+          "display_name": "Cis-Moll",
+          "notes": ["C#4", "E4", "G#4"],
+          "symbol": "C#m",
+          "inversions": {
+              "root": ["C#4", "E4", "G#4"],
+              "first": ["E4", "G#4", "C#5"],
+              "second": ["G#4", "C#5", "E5"]
+          },
+          "difficulty": "2"
+      },
+      {
+        "name": "Db Minor",
+          "display_name": "Des-Moll",
+        "notes": ["Db4", "Fb4", "Ab4"],
+        "symbol": "Dm",
+        "inversions": {
+            "root": ["Db4", "Fb4", "Ab4"],
+            "first": ["Fb4", "Ab4", "Db5"],
+            "second": ["Ab4", "Db5", "Fb5"]
+        },
+        "difficulty": "3"
+      },
+      {
+          "name": "D Minor",
+          "display_name": "D-Moll",
+          "notes": ["D4", "F4", "A4"],
+          "symbol": "Dm",
+          "inversions": {
+              "root": ["D4", "F4", "A4"],
+              "first": ["F4", "A4", "D5"],
+              "second": ["A4", "D5", "F5"]
+          },
+          "difficulty": "1"
+      },
+      {
+        "name": "D# Minor",
+          "display_name": "Dis-Moll",
+        "notes": ["D#4", "F#4", "A#4"],
+        "symbol": "Dm",
+        "inversions": {
+            "root": ["D#4", "F#4", "A#4"],
+            "first": ["F#4", "A#4", "D#5"],
+            "second": ["A#4", "D#5", "F#5"]
+        },
+        "difficulty": "3"
+    },
+      {
+          "name": "Eb Minor",
+          "display_name": "Es-Moll",
+          "notes": ["Eb4", "Gb4", "Bb4"],
+          "symbol": "Ebm",
+          "inversions": {
+              "root": ["Eb4", "Gb4", "Bb4"],
+              "first": ["Gb4", "Bb4", "Eb5"],
+              "second": ["Bb4", "Eb5", "Gb5"]
+          },
+          "difficulty": "2"
+      },
+      {
+          "name": "E Minor",
+          "display_name": "E-Moll",
+          "notes": ["E4", "G4", "B4"],
+          "symbol": "Em",
+          "inversions": {
+              "root": ["E4", "G4", "B4"],
+              "first": ["G4", "B4", "E5"],
+              "second": ["B4", "E5", "G5"]
+          },
+          "difficulty": "1"
+      },
+      {
+          "name": "F Minor",
+          "display_name": "F-Moll",
+          "notes": ["F4", "Ab4", "C5"],
+          "symbol": "Fm",
+          "inversions": {
+              "root": ["F4", "Ab4", "C5"],
+              "first": ["Ab4", "C5", "F5"],
+              "second": ["C5", "F5", "Ab5"]
+          },
+          "difficulty": "1"
+      },
+      {
+          "name": "F# Minor",
+          "display_name": "Fis-Moll",
+          "notes": ["F#4", "A4", "C#5"],
+          "symbol": "F#m",
+          "inversions": {
+              "root": ["F#4", "A4", "C#5"],
+              "first": ["A4", "C#5", "F#5"],
+              "second": ["C#5", "F#5", "A5"]
+          },
+          "difficulty": "2"
+      },
+      {
+          "name": "Gb Minor",
+          "display_name": "Ges-Moll",
+          "notes": ["Gb4", "B--4", "Db5"],
+          "symbol": "Gbm",
+          "inversions": {
+            "root": ["Gb4", "B--4", "Db5"],
+            "first": ["B--4", "Db5", "Gb5"],
+            "second": ["Db5", "Gb5", "B--5"]
+          },
+          "difficulty": "3"
+    },
+      {
+          "name": "G Minor",
+          "display_name": "G-Moll",
+          "notes": ["G4", "Bb4", "D5"],
+          "symbol": "Gm",
+          "inversions": {
+              "root": ["G4", "Bb4", "D5"],
+              "first": ["Bb4", "D5", "G5"],
+              "second": ["D5", "G5", "Bb5"]
+          },
+          "difficulty": "1"
+      },
+      {
+          "name": "G# Minor",
+          "display_name": "Gis-Moll",
+          "notes": ["G#4", "B4", "D#5"],
+          "symbol": "G#m",
+          "inversions": {
+            "root": ["G#4", "B4", "D#5"],
+            "first": ["B4", "D#5", "G#5"],
+            "second": ["D#5", "G#5", "B5"]
+          },
+          "difficulty": "2"
+      },
+      {
+          "name": "Ab Minor",
+          "display_name": "As-Moll",
+          "notes": ["Ab4", "Cb5", "Eb5"],
+          "symbol": "Abm",
+          "inversions": {
+              "root": ["Ab4", "Cb5", "Eb5"],
+              "first": ["Cb5", "Eb5", "Ab5"],
+              "second": ["Eb5", "Ab5", "Cb6"]
+          },
+          "difficulty": "3"
+      },
+      {
+          "name": "A Minor",
+          "display_name": "A-Moll",
+          "notes": ["A4", "C5", "E5"],
+          "symbol": "Am",
+          "inversions": {
+              "root": ["A4", "C5", "E5"],
+              "first": ["C5", "E5", "A5"],
+              "second": ["E5", "A5", "C6"]
+          },
+          "difficulty": "1"
+      },
+      {
+          "name": "A# Minor",
+          "display_name": "Ais-Moll",
+          "notes": ["A#4", "C#5", "E#5"],
+          "symbol": "A#m",
+          "inversions": {
+            "root": ["A#4", "C#5", "E#5"],
+            "first": ["C#5", "E#5", "A#5"],
+            "second": ["E#5", "A#5", "C#6"]
+          },
+          "difficulty": "1"
+      },
+      {
+          "name": "Bb Minor",
+          "display_name": "B-Moll",
+          "notes": ["Bb4", "Db5", "F5"],
+          "symbol": "Bbm",
+          "inversions": {
+              "root": ["Bb4", "Db5", "F5"],
+              "first": ["Db5", "F5", "Bb5"],
+              "second": ["F5", "Bb5", "Db6"]
+          },
+          "difficulty": "2"
+      },
+      {
+          "name": "H Minor",
+          "display_name": "H-Moll",
+          "notes": ["B4", "D5", "F#5"],
+          "symbol": "Hm",
+          "inversions": {
+              "root": ["B4", "D5", "F#5"],
+              "first": ["D5", "F#5", "B5"],
+              "second": ["F#5", "B5", "D6"]
+          },
+          "difficulty": "1"
+      },
+      {
+          "name": "C Dim",
+          "display_name": "C-vermindert",
+          "notes": ["C4", "Eb4", "Gb4"],
+          "symbol": "C°",
+          "inversions": {
+              "root": ["C4", "Eb4", "Gb4"],
+              "first": ["Eb4", "Gb4", "C5"],
+              "second": ["Gb4", "C5", "Eb5"]
+          },
+          "difficulty": "2"
+      },
+      {
+          "name": "C# Dim",
+          "display_name": "Cis-vermindert",
+          "notes": ["C#4", "E4", "G4"],
+          "symbol": "C#°",
+          "inversions": {
+              "root": ["C#4", "E4", "G4"],
+              "first": ["E4", "G4", "C#5"],
+              "second": ["G4", "C#5", "E5"]
+          },
+          "difficulty": "2"
+      },
+      {
+        "name": "Db Dim",
+          "display_name": "Des-vermindert",
+        "notes": ["Db4", "Fb4", "A--4"],
+        "symbol": "Db°",
+        "inversions": {
+            "root": ["Db4", "Fb4", "A--4"],
+            "first": ["Fb4", "A--4", "Db5"],
+            "second": ["A--4", "Db5", "Fb5"]
+        },
+        "difficulty": "2"
+    },
+      {
+          "name": "D Dim",
+          "display_name": "D-vermindert",
+          "notes": ["D4", "F4", "Ab4"],
+          "symbol": "D°",
+          "inversions": {
+              "root": ["D4", "F4", "Ab4"],
+              "first": ["F4", "Ab4", "D5"],
+              "second": ["Ab4", "D5", "F5"]
+          },
+          "difficulty": "2"
+      },
+      {
+        "name": "D# Dim",
+          "display_name": "Dis-vermindert",
+        "notes": ["D#4", "F#4", "A4"],
+        "symbol": "D#°",
+        "inversions": {
+            "root": ["D#4", "F#4", "A4"],
+            "first": ["F#4", "A4", "D#5"],
+            "second": ["A4", "D#5", "F#5"]
+        },
+        "difficulty": "2"
+      },
+      {
+          "name": "Eb Dim",
+          "display_name": "Es-vermindert",
+          "notes": ["Eb4", "Gb4", "B--4"],
+          "symbol": "Eb°",
+          "inversions": {
+              "root": ["Eb4", "Gb4", "B--4"],
+              "first": ["Gb4", "B--4", "Eb5"],
+              "second": ["B--4", "Eb5", "Gb5"]
+          },
+          "difficulty": "2"
+      },
+      {
+          "name": "E Dim",
+          "display_name": "E-vermindert",
+          "notes": ["E4", "G4", "Bb4"],
+          "symbol": "E°",
+          "inversions": {
+              "root": ["E4", "G4", "Bb4"],
+              "first": ["G4", "Bb4", "E5"],
+              "second": ["Bb4", "E5", "G5"]
+          },
+          "difficulty": "2"
+      },
+      {
+          "name": "F Dim",
+          "display_name": "F-vermindert",
+          "notes": ["F4", "Ab4", "Cb5"],
+          "symbol": "F°",
+          "inversions": {
+              "root": ["F4", "Ab4", "Cb5"],
+              "first": ["Ab4", "Cb5", "F5"],
+              "second": ["Cb5", "F5", "Ab5"]
+          },
+          "difficulty": "2"
+      },
+      {
+          "name": "F# Dim",
+          "display_name": "Fis-vermindert",
+          "notes": ["F#4", "A4", "C5"],
+          "symbol": "F#°",
+          "inversions": {
+              "root": ["F#4", "A4", "C5"],
+              "first": ["A4", "C5", "F#5"],
+              "second": ["C5", "F#5", "A5"]
+          },
+          "difficulty": "2"
+      },
+      {
+        "name": "Gb Dim",
+          "display_name": "Ges-vermindert",
+        "notes": ["Gb4", "B--4", "D--5"],
+        "symbol": "Gb°",
+        "inversions": {
+            "root": ["Gb4", "B--4", "D--5"],
+            "first": ["B--4", "D--5", "Gb5"],
+            "second": ["D--5", "Gb5", "B--5"]
+        },
+        "difficulty": "2"
+    },
+      {
+          "name": "G Dim",
+          "display_name": "G-vermindert",
+          "notes": ["G4", "Bb4", "Db5"],
+          "symbol": "G°",
+          "inversions": {
+              "root": ["G4", "Bb4", "Db5"],
+              "first": ["Bb4", "Db5", "G5"],
+              "second": ["Db5", "G5", "Bb5"]
+          },
+          "difficulty": "2"
+      },
+      {
+        "name": "G# Dim",
+          "display_name": "Gis-vermindert",
+        "notes": ["G#4", "B4", "D5"],
+        "symbol": "G#°",
+        "inversions": {
+            "root": ["G#4", "B4", "D5"],
+            "first": ["B4", "D5", "G#5"],
+            "second": ["D5", "G#5", "B5"]
+        },
+        "difficulty": "2"
+    },
+      {
+          "name": "Ab Dim",
+          "display_name": "As-vermindert",
+          "notes": ["Ab4", "Cb5", "E--5"],
+          "symbol": "Ab°",
+          "inversions": {
+              "root": ["Ab4", "Cb5", "E--5"],
+              "first": ["Cb5", "E--5", "Ab5"],
+              "second": ["E--5", "Ab5", "Cb6"]
+          },
+          "difficulty": "3"
+      },
+      {
+          "name": "A Dim",
+          "display_name": "A-vermindert",
+          "notes": ["A4", "C5", "Eb5"],
+          "symbol": "A°",
+          "inversions": {
+              "root": ["A4", "C5", "Eb5"],
+              "first": ["C5", "Eb5", "A5"],
+              "second": ["Eb5", "A5", "C6"]
+          },
+          "difficulty": "2"
+      },
+      {
+          "name": "A# Dim",
+          "display_name": "Ais-vermindert",
+          "notes": ["A#4", "C#5", "E5"],
+          "symbol": "A°",
+          "inversions": {
+            "root": ["A#4", "C#5", "E5"],
+            "first": ["C#5", "E5", "A#5"],
+            "second": ["E5", "A#5", "C#6"]
+          },
+          "difficulty": "3"
+    },
+      {
+          "name": "Bb Dim",
+          "display_name": "B-vermindert",
+          "notes": ["Bb4", "Db5", "f-5"],
+          "symbol": "Bb°",
+          "inversions": {
+              "root": ["Bb4", "Db5", "f-5"],
+              "first": ["Db5", "f-5", "Bb5"],
+              "second": ["f-5", "Bb5", "Db6"]
+          },
+          "difficulty": "3"
+      },
+      {
+          "name": "B Dim",
+          "display_name": "H-vermindert",
+          "notes": ["B4", "D5", "F5"],
+          "symbol": "B°",
+          "inversions": {
+              "root": ["B4", "D5", "F5"],
+              "first": ["D5", "F5", "B5"],
+              "second": ["F5", "B5", "D6"]
+          },
+          "difficulty": "2"
+      }
+  ]
+}

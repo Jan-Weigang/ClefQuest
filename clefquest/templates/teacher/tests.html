@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Tests</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 1rem;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #007bff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        table th, table td {
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        table th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        table tr:hover {
+            background-color: #e9f4ff;
+        }
+
+        .close-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            color: #fff;
+            background-color: #dc3545;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .close-btn:hover {
+            background-color: #c82333;
+        }
+
+        .form-footer {
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .submit-btn {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .submit-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Manage Your Tests</h1>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Test</th>
+                        <th>Beschreibung</th>
+                        <th>Gruppe</th>
+                        <th>Schwierigkeit</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for test in tests %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('teacher.teacher_group_details', group_id=test.group.id) }}">
+                                {{ test.title }}
+                            </a>
+                        </td>
+                        <td>{{ test.description }}</td>
+                        <td>{{ test.group.name }}</td>
+                        <td>{{ test.difficulty }}</td>
+                        <td>
+                            {% if test.open %}
+                            <form method="POST" action="{{ url_for('teacher.teacher_tests') }}">
+                                <input type="hidden" name="test_ids" value="{{ test.id }}">
+                                <button type="submit" class="close-btn">Beenden</button>
+                            </form>
+                            {% else %}
+                            Beendet
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </form>
+    </div>
+    <div class="container">
+        <div class="form-footer">
+            <a href="{{ url_for('teacher.teacher_test_create') }}" class="submit-btn">Neuen Test erstellen</a>
+        </div>
+    </div>
+    <div class="container">
+        <div class="form-footer">
+            <a href="{{ url_for('teacher.teacher_dashboard') }}" class="submit-btn">Zurück zur Hauptseite</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/htmx.org"></script>
+    <script src="https://unpkg.com/opensheetmusicdisplay/build/opensheetmusicdisplay.min.js"></script>
+    <title>Triad Tester</title>
+</head>
+<body>
+    <h1>Triad Tester</h1>
+    <div id="quiz-container">
+        <h2>Identify the Triad:</h2>
+        <div id="osmd-container" style="margin-top: 20px;"></div>
+        <form hx-post="/check-answer" hx-target="#result" hx-swap="innerHTML">
+            <input type="hidden" name="correct_answer" value="{{ encrypted_answer }}">
+            {% for answer in answers %}
+            <button type="submit" name="selected_answer" value="{{ answer }}">{{ answer }}</button>
+            {% endfor %}
+        </form>
+        <div id="result" style="margin-top: 20px;"></div>
+    </div>
+
+    <script>
+        const osmd = new opensheetmusicdisplay.OpenSheetMusicDisplay("osmd-container", {
+            drawTitle: false,
+            drawComposer: false,
+            drawCredits: false,
+        });
+
+        // MusicXML data embedded directly as a JavaScript variable
+        const musicXML = `{{ triad.musicxml | safe }}`; // Pass the XML correctly escaped
+
+        // Load MusicXML from a string
+        osmd.load(new DOMParser().parseFromString(musicXML, "application/xml")).then(() => osmd.render());
+    </script>
+</body>
+</html>

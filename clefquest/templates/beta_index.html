@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/opensheetmusicdisplay/build/opensheetmusicdisplay.min.js"></script>
+    <title>Triad Tester</title>
+</head>
+<body>
+    <h1>Triad Tester</h1>
+    <label for="triad-select">Choose a triad:</label>
+    <select id="triad-select">
+        {% for triad in triads %}
+        <option value="{{ triad.name }}">{{ triad.name }}</option>
+        {% endfor %}
+    </select>
+    <button onclick="loadTriad()">Load Triad</button>
+
+    <div id="osmd-container" style="margin-top: 20px;"></div>
+
+    <script>
+        const osmd = new opensheetmusicdisplay.OpenSheetMusicDisplay("osmd-container", {
+            drawTitle: false, // Disable title display
+            drawComposer: false, // Disable composer display
+            drawCredits: false, // Disable instrument or part labels
+        });
+    
+        function loadTriad() {
+            const triadName = document.getElementById("triad-select").value;
+            fetch(`/render-triad/${encodeURIComponent(triadName)}`)
+                .then(response => response.text())
+                .then(xml => {
+                    osmd.load(xml).then(() => osmd.render());
+                })
+                .catch(err => {
+                    alert("Error loading triad: " + err);
+                });
+        }
+    </script>
+    
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Reload Progress</title>
+    <script src="https://unpkg.com/htmx.org@1.9.4"></script>
+    <style>
+        #progress-container {
+            width: 80%;
+            max-width: 500px;
+            margin: 20px auto;
+            text-align: center;
+        }
+        progress {
+            width: 100%;
+            height: 20px;
+            margin-top: 10px;
+        }
+        #status-message {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        #milestone-list {
+            margin-top: 15px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>Reloading Tasks...</h1>
+    
+    <div id="progress-container">
+        <p><strong>Progress:</strong> <span id="progress-count">0</span> / <span id="total-count">0</span></p>
+        <progress id="progress-bar" value="0" max="100"></progress>
+        <p id="status-message">Starting...</p>
+    </div>
+
+    <div id="milestone-list">
+        <h3>Milestones:</h3>
+        <ul id="milestones"></ul>
+    </div>
+
+    <script>
+        const eventSource = new EventSource("/stream");
+
+        eventSource.addEventListener("update", function(event) {
+            const data = JSON.parse(event.data);
+
+            if (data.total) {
+                document.getElementById("total-count").innerText = data.total;
+                document.getElementById("progress-bar").max = data.total;
+            }
+            if (data.progress) {
+                document.getElementById("progress-count").innerText = data.progress;
+                document.getElementById("progress-bar").value = data.progress;
+            }
+            if (data.message) {
+                document.getElementById("status-message").innerText = data.message;
+            }
+            if (data.error) {
+                document.getElementById("status-message").innerText = "Error: " + data.error;
+                eventSource.close();  // Stop listening on error
+            }
+        });
+
+        eventSource.addEventListener("milestone", function(event) {
+            const data = JSON.parse(event.data);
+
+            if (data.message) {
+                const milestoneList = document.getElementById("milestones");
+            const listItem = document.createElement("li");
+            listItem.innerText = data.message;
+            milestoneList.appendChild(listItem);
+            }
+
+            
+        });
+    </script>
+</body>
+</html>

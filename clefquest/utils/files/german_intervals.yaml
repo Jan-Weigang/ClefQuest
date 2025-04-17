@@ -1,0 +1,46 @@
+intervals:
+  P1: "Reine Prime"
+  A1: "Übermäßige Prime"
+  d1: "Verminderte Prime"
+
+  m2: "Kleine Sekunde"
+  M2: "Große Sekunde"
+  A2: "Übermäßige Sekunde"
+  d2: "Verminderte Sekunde"
+
+  m3: "Kleine Terz"
+  M3: "Große Terz"
+  A3: "Übermäßige Terz"
+  d3: "Verminderte Terz"
+
+  P4: "Reine Quarte"
+  A4: "Übermäßige Quarte"
+  d4: "Verminderte Quarte"
+
+  P5: "Reine Quinte"
+  A5: "Übermäßige Quinte"
+  d5: "Verminderte Quinte"
+
+  m6: "Kleine Sexte"
+  M6: "Große Sexte"
+  A6: "Übermäßige Sexte"
+  d6: "Verminderte Sexte"
+
+  m7: "Kleine Septime"
+  M7: "Große Septime"
+  A7: "Übermäßige Septime"
+  d7: "Verminderte Septime"
+
+  P8: "Reine Oktave"
+  A8: "Übermäßige Oktave"
+  d8: "Verminderte Oktave"
+
+  m9: "Kleine None"
+  M9: "Große None"
+  A9: "Übermäßige None"
+  d9: "Verminderte None"
+
+  m10: "Kleine Dezime"
+  M10: "Große Dezime"
+  A10: "Übermäßige Dezime"
+  d10: "Verminderte Dezime"

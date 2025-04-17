@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/htmx.org"></script>
+    <script src="https://unpkg.com/opensheetmusicdisplay/build/opensheetmusicdisplay.min.js"></script>
+    <title>Task {{ trial_id }}</title>
+</head>
+<body>
+    <div style="width: 100%; max-width: 500px; margin: 20px auto; background-color: #e0e0e0; border-radius: 10px; overflow: hidden; text-align: left;">
+    <div style="height: 20px; width: {{ progress }}%; background-color: #007bff; transition: width 0.3s; align-self: start;"></div>
+</div>
+
+    <div>{{ piano_svg|safe }}</div>
+
+    <div id="quiz-container">
+        {% if task_type == "triads" %}
+        <h2>Bestimme den Dreiklang:</h2>
+        {% elif task_type == "note-reading" %}
+        <h2>Bestimme die Note:</h2>
+        {% elif task_type == "intervals" %}
+        <h2>Bestimme das Intervall:</h2>
+        {% elif task_type == "scales" %}
+        <h2>Bestimme die Tonleiter:</h2>
+        {% endif %}
+        <div id="osmd-container" style="margin-top: 20px;"></div>
+
+        <form hx-post="" hx-target="#result" hx-swap="innerHTML">
+            <input type="hidden" name="trial_id" value="{{ trial_id }}">
+            <input type="hidden" name="correct_answer" value="{{ encrypted_answer }}">
+            {% for answer in answers %}
+            <button type="submit" name="selected_answer" value="{{ answer }}">{{ answer }}</button>
+            {% endfor %}
+        </form>
+
+        <div id="result" style="margin-top: 20px;"></div>
+    </div>
+
+    <style>
+        body div, body h1, body p {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #osmd-container {
+            margin-left: auto;
+            margin-right: auto;
+            width: 500px;
+        }
+
+        button {
+            padding: 1rem;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            width: min(100%, 500px);
+            gap: 1rem;
+        }
+    </style>
+
+    <script>
+        const osmd = new opensheetmusicdisplay.OpenSheetMusicDisplay("osmd-container", {
+            drawTitle: false,
+            drawComposer: false,
+            drawCredits: false,
+            autoResize: true,
+            drawingParameters: "compact"
+        });
+
+        osmd.EngravingRules.PageLeftMargin = 0;
+        osmd.EngravingRules.PageRightMargin = 0;
+        osmd.EngravingRules.PageTopMargin = 2;
+        osmd.EngravingRules.PageBottomMargin = 5;
+        osmd.EngravingRules.SystemSpacing = 5; // Reduce space between systems
+        osmd.EngravingRules.StaffDistance = 10;
+        osmd.EngravingRules.RenderPartNames = false; // Disable instrument labels
+        osmd.EngravingRules.RenderPartAbbreviations = false; // Disable short instrument names
+
+        // MusicXML data embedded directly as a JavaScript variable
+        const musicXML = `{{ musicxml | safe }}`; // Pass the XML correctly escaped
+
+        // Load MusicXML from a string
+        osmd.load(new DOMParser().parseFromString(musicXML, "application/xml")).then(() => osmd.render());
+
+        function adjustOSMDSize() {
+            // Get actual width of rendered music
+            const osmdWidth = osmd.container.clientWidth; // Get actual OSMD width
+            const containerWidth = document.getElementById("quiz-container").clientWidth;
+            console.log(osmdWidth);
+            console.log(containerWidth);
+
+            // Auto-scale music to fit container
+            if (osmdWidth > containerWidth) {
+                console.log("I should be scaling");
+                osmd.zoom = containerWidth / osmdWidth; // Adjust zoom factor
+                osmd.render(); // Re-render with new zoom level
+            }
+        }
+        
+        function onContainerResize(entries) {
+            for (let entry of entries) {
+                if (entry.contentBoxSize) {
+                    adjustOSMDSize();
+                }
+            }
+        }
+
+        const resizeObserver = new ResizeObserver(onContainerResize);
+        resizeObserver.observe(document.getElementById("quiz-container"));
+
+
+
+        document.addEventListener("htmx:afterSwap", function () {
+            // Select the result container
+            const resultContainer = document.querySelector(".result-container");
+
+            if (!resultContainer) return; // Exit if not found
+
+            // Change the background color based on result
+            if (resultContainer.querySelector(".result.correct")) {
+                document.body.style.backgroundColor = "#d4edda"; // Light green for correct
+            } else if (resultContainer.querySelector(".result.incorrect")) {
+                document.body.style.backgroundColor = "#f8d7da"; // Light red for incorrect
+            }
+
+            // Make all buttons reload the page
+            document.querySelectorAll("button").forEach((button) => {
+                button.onclick = () => window.location.reload();
+            });
+        });
+
+    </script>
+</body>
+</html>
