@@ -109,6 +109,11 @@
                                 {{ test.title }}
                             </a>
                         </td>
+                        <td>
+                            <a href="{{ url_for('teacher.plenum_start', test_id=test.id) }}">
+                                Plenum
+                            </a></td>
+                        </td>
                         <td>{{ test.description }}</td>
                         <td>
                             <a href="{{ url_for('teacher.teacher_group_details', group_id=test.group.id) }}">

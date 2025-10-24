@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plenum abgeschlossen</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            margin: 0;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        h1 {
+            color: #4caf50;
+            font-size: 2rem;
+        }
+
+        .summary {
+            margin-top: 2rem;
+            font-size: 1.3rem;
+        }
+
+        table {
+            margin: 2rem auto;
+            border-collapse: collapse;
+            width: 80%;
+            max-width: 800px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
+
+        th {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8f8f8;
+        }
+
+        .actions {
+            margin-top: 2rem;
+        }
+
+        .actions a {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .actions a:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎉 Plenum abgeschlossen!</h1>
+    <div class="summary">
+        <p>Test: <strong>{{ test.title }}</strong></p>
+        <p>Insgesamt {{ total_tasks }} Aufgaben.</p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Aufgabe</th>
+                <th>Richtige Antwort</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for trial in trials %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ trial.display_name }}</td>
+                <td>{{ trial.correct_answer }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="actions">
+        <a href="{{ url_for('teacher.teacher_test_details', test_id=test.id) }}">⬅️ Zurück zum Test</a>
+    </div>
+</body>
+</html>

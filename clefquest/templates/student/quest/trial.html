@@ -28,14 +28,32 @@
 
         <form hx-post="" hx-target="#result" hx-swap="innerHTML">
             <input type="hidden" name="trial_id" value="{{ trial_id }}">
-            <input type="hidden" name="correct_answer" value="{{ encrypted_answer }}">
+            <input type="hidden" name="correct_answer" value="{{ encrypted_answer | default('') }}">
             {% for answer in answers %}
             <button type="submit" name="selected_answer" value="{{ answer }}">{{ answer }}</button>
             {% endfor %}
         </form>
 
         <div id="result" style="margin-top: 20px;"></div>
+
+        {% if is_plenum %}
+            <div id="countdown-container" style="text-align:center; margin-top:10px;">
+                <h1 id="countdown-display">{{ countdown }}</h1>
+            </div>
+
+            <form id="plenum-form" method="POST" style="margin-top: 2rem; 
+                    display: none;">
+                <input type="hidden" name="action" value="next">
+                <button id="next-button" type="submit" style="">
+                    ➡️ Nächste Aufgabe
+                </button>
+            </form>
+
+        {% endif %}
+
     </div>
+
+    
 
     <style>
         body div, body h1, body p {
@@ -135,5 +153,45 @@
         });
 
     </script>
+
+
+    {% if is_plenum %}
+        <script>
+        // Highlight plenum mode visually
+        document.addEventListener("DOMContentLoaded", () => {
+            document.body.style.backgroundColor = "#fffde7";
+        });
+
+        const buttons = document.querySelectorAll("form button[name='selected_answer']");
+        buttons.forEach(btn => {
+            btn.disabled = true;
+            btn.style.cursor = "default";
+            btn.style.fontSize = "1.2rem";
+            btn.style.fontWeight = "bold";
+        });
+
+        let timeLeft = {{ countdown }};
+        const display = document.getElementById("countdown-display");
+        const nextForm = document.getElementById("plenum-form");
+
+        function updateCountdown() {
+            if (timeLeft > 0) {
+                timeLeft--;
+                display.textContent = timeLeft;
+            } else {
+                clearInterval(timer);
+                display.textContent = "⏰ Zeit abgelaufen!";
+                display.style.color = "red";
+                setTimeout(() => nextForm.submit(), 500);
+            }
+        }
+
+        const timer = setInterval(updateCountdown, 1000);
+        </script>
+    {% endif %}
+
+
+
+
 </body>
 </html>

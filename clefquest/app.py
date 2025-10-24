@@ -22,7 +22,7 @@ from routes.setup import setup_bp
 # ============ Modules ==============
 # ===================================
 
-from extensions import db, init_session
+from extensions import db, init_session, redis_client
 from auth import init_sso, register_sso_routes
 
 import admin
@@ -69,7 +69,6 @@ app.config["SSE_REDIS_URL"] = f"redis://{REDIS_HOST}:6379"
 
 
 try:
-    redis_client = redis.Redis(host=REDIS_HOST, port=6379, db=0)
     redis_client.ping()  # Test connection
     print(f"✅ Connected to Redis at {REDIS_HOST}:6379")
 except redis.ConnectionError:
@@ -82,7 +81,7 @@ redis_client.set("test_key", "Redis is working!")
 
 # Read from Redis
 value = redis_client.get("test_key")
-print(f"✅ Redis Test Value: {value.decode() if value else 'No data found'}") # type: ignore
+print(f"✅ Redis Test Value: {value if value else 'No data found'}") # type: ignore
 
 # ======================================================================
 # ============================  TODO  ==================================

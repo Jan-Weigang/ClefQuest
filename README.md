@@ -69,7 +69,6 @@ networks:
   clefquest_network:
 
 volumes:
-  clefquest_db:
   redis_data:
   
 services:
@@ -80,16 +79,16 @@ services:
     networks:
       - clefquest_network
     ports:
-      - "PORT_HIER_ANGEBEN:5000"
+      - "PORT:5000"
     env_file:
       - .env
     depends_on:
       redis:
         condition: service_healthy
     volumes:
-      - clefquest_db:/instance/
+      - ./data:/usr/src/app/instance
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]  # Replace with actual healthcheck endpoint
       interval: 10s
       timeout: 5s
       retries: 3
@@ -108,7 +107,10 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
-      start_period: 3s
+      start_period: 3s  # Ensures Redis gets time to initialize before retries begin
+
+
+
 ```
 Hier muss der Port im eigenen Server selbstständig gewählt und mit einem Reverse Proxy ggfls. abgestimmt werden.
 

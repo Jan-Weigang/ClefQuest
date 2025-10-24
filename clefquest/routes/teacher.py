@@ -2,6 +2,13 @@ from flask import Blueprint, render_template, request, session, redirect, url_fo
 from decorators.auth import is_teacher
 from models import *
 
+# IMPORT CREATE QUEST
+from services.quest_generator import create_quest
+from assets import piano_svg
+
+import json
+from extensions import redis_client  # your configured Redis instance
+
 teacher_bp = Blueprint('teacher', __name__, url_prefix='/teacher')
 
 # =======================  Apply the Decorator to the Whole Blueprint =============================
@@ -358,3 +365,108 @@ def teacher_test_create():
         print(f"Error: {str(e)}")
         return render_template("error.html", error_message=str(e)), 500
 
+
+
+@teacher_bp.route('/plenum/start/<string:test_id>', methods=['GET', 'POST'])
+@is_teacher
+def plenum_start(test_id):
+    """Prepare and configure plenum mode before launching."""
+    test = Test.query.get_or_404(test_id)
+    redis_key = f"plenum:{test_id}"
+
+    if request.method == "POST":
+        # Always create a fresh quest
+        quest = create_quest("plenum_mode", test)
+        countdown = int(request.form.get("countdown", 20))
+
+        plenum = {
+            "index": 0,
+            "show_solution": False,
+            "countdown": countdown,
+            "quest": {
+                "id": quest.id,
+                "trials": [
+                    {
+                        "id": t.id,
+                        "task_type": t.task.type,
+                        "musicxml": t.task.musicxml,
+                        "correct_answer": t.correct_answer,
+                        "possible_answers": t.possible_answers,
+                        "display_name": t.task.display_name,
+                    }
+                    for t in quest.tasks
+                ],
+            },
+        }
+
+        redis_client.set(redis_key, json.dumps(plenum), ex=3600)
+        return redirect(url_for('teacher.plenum_mode', test_id=test.id))
+
+    return render_template('teacher/plenum_start.html', test=test)
+
+
+
+
+
+
+@teacher_bp.route('/plenum/<string:test_id>', methods=['GET', 'POST'])
+@is_teacher
+def plenum_mode(test_id):
+    """Run test in plenum mode with Redis-backed quest state."""
+    test = Test.query.get_or_404(test_id)
+    redis_key = f"plenum:{test_id}"
+
+    # Try to load plenum quest from Redis
+    plenum_data = redis_client.get(redis_key)
+    if plenum_data:
+        plenum = json.loads(plenum_data)
+    else:
+        return "no plenum test found."
+
+    trials = plenum["quest"]["trials"]
+    total_tasks = len(trials)
+    idx = plenum["index"]
+
+    if request.method == "POST":
+        action = request.form.get("action")
+        if action != "next":
+            return "wrong action"
+        
+        plenum["index"] += 1
+        
+        if plenum["index"] >= total_tasks - 1:
+            redis_client.delete(redis_key)
+            return render_template(
+                "teacher/plenum_completed.html", 
+                test=test,
+                trials=trials,
+                total_tasks=total_tasks
+            )
+            
+        redis_client.set(redis_key, json.dumps(plenum), ex=3600)
+        return redirect(url_for('teacher.plenum_mode', test_id=test_id))
+
+    if idx >= total_tasks:
+        redis_client.delete(redis_key)
+        return render_template(
+            "teacher/plenum_completed.html", 
+            test=test,
+            trials=trials,
+            total_tasks=total_tasks
+        )
+
+    next_trial = trials[idx]
+    progress = round((idx / total_tasks) * 100, 2)
+    countdown = plenum.get("countdown", 10)
+
+    return render_template(
+        "student/quest/trial.html",
+        task_type=next_trial["task_type"],
+        trial_id=next_trial["id"],
+        answers=next_trial["possible_answers"],
+        progress=progress,
+        musicxml=next_trial["musicxml"],
+        piano_svg=piano_svg,
+        is_plenum=True,
+        countdown=countdown
+    )
