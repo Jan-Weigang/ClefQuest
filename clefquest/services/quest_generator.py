@@ -32,12 +32,22 @@ def apply_stage_filters(query, stage, mode_false_answers=False):
         settings = stage.settings
         print(f"settings= {settings}")
 
-        if stage.task_type == "intervals" and "intervals" in settings:
-            selected_intervals = settings["intervals"]
+        if stage.task_type == "intervals":
+            # --- Intervals filtering ---
+            selected_intervals = settings.get("intervals", [])
             if selected_intervals:
-                filters.append(
-                    Task.name.in_(selected_intervals)
-                )
+                filters.append(Task.name.in_(selected_intervals))
+
+            # --- Arpeggiation filtering ---
+            selected_mode = settings.get("arpeggiated", "random")
+
+            if selected_mode == "arpeggiated":
+                # check that the JSON value is NOT NULL → means the key exists
+                filters.append(func.json_extract(Task.data, '$.arpeggiated').isnot(None))
+            elif selected_mode == "chord":
+                # check that the key is missing / NULL
+                filters.append(func.json_extract(Task.data, '$.arpeggiated').is_(None))
+            
         
         elif stage.task_type == "triads" and "chord_types" in settings:
             filters.append(Task.data["chord_type"].astext.in_(settings["chord_types"]))
