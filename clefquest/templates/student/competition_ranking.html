@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Rangliste – {{ competition.title }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2rem;
+            background-color: #f5f6fa;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            max-width: 600px;
+            margin: auto;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 1.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 1rem;
+        }
+
+        th, td {
+            padding: 0.8rem;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            color: #007bff;
+        }
+
+        tr:nth-child(2) td {
+            font-weight: bold;
+            color: gold;
+        }
+
+        tr:nth-child(3) td {
+            font-weight: bold;
+            color: silver;
+        }
+
+        tr:nth-child(4) td {
+            font-weight: bold;
+            color: #cd7f32;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 1rem;
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>{{ competition.title }} – Rangliste</h2>
+        {% if completions %}
+        <table>
+            <tr>
+                <th>Platz</th>
+                <th>Name</th>
+                <th>Punkte</th>
+                <th>Versuche</th>
+            </tr>
+            {% for c in completions %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ c.student_name }}</td>
+                <td>{{ c.correct_answers }}</td>
+                <td>{{ c.total_questions }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+            <p>Keine Ergebnisse vorhanden.</p>
+        {% endif %}
+
+        <a href="{{ url_for('student.student') }}" class="back-link">← Zurück</a>
+    </div>
+</body>
+</html>

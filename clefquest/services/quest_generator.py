@@ -80,6 +80,66 @@ def apply_stage_filters(query, stage, mode_false_answers=False):
 
 
 
+def build_trials_for_stage(stage, selected_tasks, quest_id=None, task_pool=None):
+    """
+    Creates Trial-like objects for a given stage and task list.
+
+    Args:
+        stage: Stage object (used for filters and false answers)
+        selected_tasks: list[Task]
+        quest_id: optional, for Quest linkage
+        persist: if True, add to DB
+
+    Returns:
+        list[Trial]
+    """
+    trials = []
+
+    false_query = Task.query
+    false_query = apply_stage_filters(false_query, stage, mode_false_answers=True)
+    filtered_false_tasks = false_query.all()
+
+    for task in selected_tasks:
+
+        match task.type:
+
+            case "note-reading":
+                pool = task_pool if task_pool else selected_tasks
+                false_answers = get_false_answers(task, pool, root_letter_filter=False)
+
+            case "intervals":
+                false_answers = get_false_answers(task, filtered_false_tasks)       # type: ignore
+
+            case "scales":
+                false_answers = get_false_answers(task, filtered_false_tasks)       # type: ignore
+        
+            case "triads":
+                false_answers = get_false_answers(task, filtered_false_tasks)       # type: ignore
+        
+            case _:
+                false_answers = []
+                print("Reached impossible Task during create quest")
+
+
+        correct_answer = task.display_name
+        possible_answers = false_answers + [correct_answer]
+        random.shuffle(possible_answers)
+
+        trial = Trial(
+            quest_id=quest_id,                      # type: ignore
+            task_id=task.id,                        # type: ignore
+            correct_answer=correct_answer,          # type: ignore
+            possible_answers=possible_answers,      # type: ignore
+            stage_id=stage.id                       # type: ignore
+        )
+        print(trial)
+        print(possible_answers)
+        trials.append(trial)
+    
+    return trials
+
+
+
 
 
 
@@ -104,10 +164,8 @@ def create_quest(student_id, student_name, test):
         student_name=student_name             # type: ignore      # Placeholder?
     )
     db.session.add(quest)
-
     # Flush to generate the ID
     db.session.flush()
-
     quest_id = quest.id
     print(f"Quest ID {quest_id} has {len(test.stages)} stages")
 
@@ -129,47 +187,9 @@ def create_quest(student_id, student_name, test):
         else:
             selected_tasks = filtered_tasks  # Use all tasks if not enough are available
 
-
-
-        false_query = Task.query
-        false_query = apply_stage_filters(false_query, stage, mode_false_answers=True)
-        filtered_false_tasks = false_query.all()
-
+        trials = build_trials_for_stage(stage, selected_tasks, quest_id)
         
-
-        for task in selected_tasks:
-
-            match task.type:
-
-                case "note-reading":
-                    false_answers = get_false_answers(task, filtered_tasks, root_letter_filter=False)
-
-                case "intervals":
-                    false_answers = get_false_answers(task, filtered_false_tasks)       # type: ignore
-
-                case "scales":
-                    false_answers = get_false_answers(task, filtered_false_tasks)       # type: ignore
-            
-                case "triads":
-                    false_answers = get_false_answers(task, filtered_false_tasks)       # type: ignore
-            
-                case _:
-                    false_answers = []
-                    print("Reached impossible Task during create quest")
-
-
-            correct_answer = task.display_name
-            possible_answers = false_answers + [correct_answer]
-            random.shuffle(possible_answers)
-
-            trial = Trial(
-                quest_id=quest_id,                      # type: ignore
-                task_id=task.id,                        # type: ignore
-                correct_answer=correct_answer,          # type: ignore
-                possible_answers=possible_answers,      # type: ignore
-                stage_id=stage.id                       # type: ignore
-            )
-            print(trial)
+        for trial in trials:
             db.session.add(trial)
 
     db.session.commit()    
@@ -177,3 +197,21 @@ def create_quest(student_id, student_name, test):
     print(f"Total create_quest() execution time: {total_time:.6f} seconds")
     return quest
 
+
+
+
+def create_competition(template):
+    """
+    Generates and returns the filtered task list for a competition template.
+    CompetitionTemplates always have exactly one stage.
+    """
+
+    start_time = time.perf_counter()
+
+    stage = template.stage
+    filtered_tasks = apply_stage_filters(Task.query, stage).all()
+    print(f"Filter: {stage.task_type}, Tasks Available: {len(filtered_tasks)}")
+
+    total_time = time.perf_counter() - start_time
+    print(f"Total create_quest() execution time: {total_time:.6f} seconds")
+    return filtered_tasks

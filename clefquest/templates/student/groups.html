@@ -110,14 +110,33 @@
     <div class="container">
         {% if practicable_tests %}
             <h2>Übungstests</h2>
-            <ul>
-                {% for test in practicable_tests %}
-                <li>
-                    {{ test.title }}
-                    <a href="{{ url_for('practice.plenum_start', test_id=test.id) }}" class="btn btn-primary">Üben</a>
-                </li>
-                {% endfor %}
-            </ul>
+            <div class="group">
+                <ul class="tests">
+                    {% for test in practicable_tests %}
+                    <li>
+                        {{ test.title }}
+                        <a href="{{ url_for('practice.plenum_start', test_id=test.id) }}" class="start-test">Üben</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="container">
+        {% if competitions %}
+            <h2>Wettbewerbe</h2>
+            <div class="group">
+                <ul class="tests">
+                    {% for comp in competitions %}
+                    <li>
+                        <div>{{ comp.title }}</div>
+                        <div><a href="{{ url_for('student.competition_ranking', competition_id=comp.id) }}">Highscore: {{ comp.best_correct }}</a></div>
+                        <a href="{{ url_for('student.start_competition', competition_id=comp.id) }}" class="start-test">Starten</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
         {% endif %}
     </div>
 </body>

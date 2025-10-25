@@ -497,13 +497,21 @@
             <label for="description">Beschreibung:</label>
             <textarea id="description" name="description" rows="4"></textarea>
 
-            <label for="is_practicable">Für Schüler als Übung sichtbar:</label>
-            <input type="checkbox" id="is_practicable" name="is_practicable">
+            <select name="is_practicable" id="is_practicable">
+                <option value="false" selected>Keine Übung</option>
+                <option value="true">Kann geübt werden</option>
+            </select>
 
-            <label for="is_global">Global für alle Lehrer sichtbar:</label>
-            <input type="checkbox" id="is_global" name="is_global">
+            <select name="is_global" id="is_global">
+                <option value="false" selected>Nur für mich sichtbar</option>
+                <option value="true">Für alle Lehrer sichtbar</option>
+            </select>
 
-            <label for="group_id">Gruppe auswählen:</label>
+            <select name="is_competition" id="is_competition">
+                <option value="false" selected>Normaler Test</option>
+                <option value="true">Wettbewerb</option>
+            </select>
+
             <select id="group_id" name="group_id" required>
                 {% for group in groups %}
                 <option value="{{ group.id }}">{{ group.name }}</option>

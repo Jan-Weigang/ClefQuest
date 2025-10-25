@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from music21 import pitch
 
 from sqlalchemy import Index
@@ -68,14 +68,14 @@ class Quest(db.Model, TimestampMixin):
 
     def __repr__(self):
         return f"<Quest id={self.id} student='{self.student_name}' test_id={self.test_id}>"
-
+    
 
 class Stage(db.Model, TimestampMixin):
     id = db.Column(db.String(12), primary_key=True, default=generate_nanoid, unique=True)
-    test_id = db.Column(db.String(12), db.ForeignKey('test.id'), nullable=False)
+    test_id = db.Column(db.String(12), db.ForeignKey('test.id'), nullable=True)
 
     task_type = db.Column(db.String, nullable=False)  # "intervals", "triads", etc.
-    count = db.Column(db.Integer, nullable=False)  # Number of tasks for this stage
+    count = db.Column(db.Integer, nullable=False, default=-1)  # Number of tasks for this stage
 
     # Limits on pitch range (if applicable)
     lower_limit = db.Column(db.String, nullable=True)  # e.g., "C4"
@@ -92,7 +92,7 @@ class Stage(db.Model, TimestampMixin):
 
 class Trial(db.Model, TimestampMixin):
     id = db.Column(db.String(12), primary_key=True, default=generate_nanoid, unique=True)
-    quest_id = db.Column(db.String(12), db.ForeignKey('quest.id'), nullable=False)
+    quest_id = db.Column(db.String(12), db.ForeignKey('quest.id'), nullable=True)   # nullable in competitions
     task_id = db.Column(db.String(12), db.ForeignKey('task.id'), nullable=False)  # Reference to Task
     stage_id = db.Column(db.String(12), db.ForeignKey('stage.id'), nullable=False)
     
@@ -226,3 +226,62 @@ class PracticeCompletion(db.Model, TimestampMixin):
     test_id = db.Column(db.String, db.ForeignKey("test.id"), nullable=False)
 
     test = db.relationship("Test", backref="practice_completions")
+
+
+
+
+class CompetitionTemplate(db.Model, TimestampMixin):
+    id = db.Column(db.String(12), primary_key=True, default=generate_nanoid, unique=True)
+    title = db.Column(db.String, nullable=False)
+    description = db.Column(db.Text, nullable=True)
+
+    open = db.Column(db.Boolean, default=True)
+    piano = db.Column(db.Boolean, default=True)
+
+    stage_id = db.Column(db.String(12), db.ForeignKey("stage.id"), nullable=False)
+    stage = db.relationship("Stage", backref=db.backref("competition", uselist=False))
+
+    task_ids = db.Column(db.JSON, nullable=True)
+
+    countdown_start_seconds = db.Column(db.Integer, nullable=False, default=20)
+    countdown_gain_seconds = db.Column(db.Integer, nullable=False, default=5)
+    countdown_factor = db.Column(db.Float, nullable=False, default=0.85)
+
+    def __repr__(self):
+        return f"<Test id={self.id} title='{self.title}'>"
+    
+
+
+class CompetitionCompletion(db.Model, TimestampMixin):
+    """
+    Stores a student's result in a competition.
+    Created when the student starts a competition, updated when they finish.
+    """
+    id = db.Column(db.String(12), primary_key=True, default=generate_nanoid, unique=True)
+    competition_id = db.Column(db.String(12), db.ForeignKey("competition_template.id"), nullable=False)
+
+    student_id = db.Column(db.String(128), nullable=False)
+    student_name = db.Column(db.String(128), nullable=False)
+
+    started_at = db.Column(db.DateTime, default=datetime.utcnow)
+    deadline = db.Column(db.DateTime, nullable=True)
+
+    correct_answers = db.Column(db.Integer, default=0)
+    total_questions = db.Column(db.Integer, default=0)
+
+    # Optional: link backref for convenience
+    competition = db.relationship("CompetitionTemplate", backref=db.backref("completions", lazy=True))
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if "competition" in kwargs and self.deadline is None:
+            comp = kwargs["competition"]
+            self.deadline = datetime.utcnow() + timedelta(
+                seconds=getattr(comp, "countdown_start_seconds", 0)
+            )
+
+
+    def __repr__(self):
+        return f"<CompetitionCompletion {self.student_name} ({self.correct_answers}/{self.total_questions})>"
+
+    

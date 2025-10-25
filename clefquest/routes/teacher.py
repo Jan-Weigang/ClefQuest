@@ -159,6 +159,7 @@ def teacher_tests():
 
         # Fetch tests belonging to the teacher's groups
         tests = Test.query.filter(Test.group_id.in_(group_ids)).all()
+        competitions = CompetitionTemplate.query.all()
 
         if request.method == 'POST':
             # Close selected tests
@@ -170,7 +171,7 @@ def teacher_tests():
             db.session.commit()
             return redirect(url_for('teacher.teacher_tests'))
 
-        return render_template('teacher/tests.html', tests=tests)
+        return render_template('teacher/tests.html', tests=tests, competitions=competitions)
 
     except Exception as e:
         db.session.rollback()
@@ -313,42 +314,26 @@ def teacher_test_create():
             return render_template('teacher/create_test.html', groups=db_groups)
 
         elif request.method == 'POST':
+            form = request.form
             print(request.form)
             # Retrieve form data
-            title = request.form['title']
-            description = request.form['description']
-            group_id = request.form['group_id']  # Selected group
+            title = form['title']
+            description = form['description']
+            group_id = form['group_id']  # Selected group
             teacher_id = session["user_info"].get("sub")
             teacher_name = session["user_info"]["preferred_username"]
 
-            is_practicable = 'is_practicable' in request.form
-            is_global = 'is_global' in request.form
-            print("test")
+            is_practicable = form.get("is_practicable") == "true"
+            is_global = form.get("is_global") == "true"
+            is_competition = form.get("is_competition") == "true"
             
             # Extract test stages from form data # TODO Make into function
-            stages = []
-            index = 0
-            while f'stage[{index}][task_type]' in request.form:
-                stage_data = {
-                    "task_type": request.form.get(f'stage[{index}][task_type]'),
-                    "count": int(request.form.get(f'stage[{index}][count]', 0)),
-                    # "difficulty": int(request.form.get(f'stage[{index}][difficulty]', 0)),
-                    "clef": request.form.get(f'stage[{index}][clef]'),
-                    "lower_limit": request.form.get(f'stage[{index}][lower_limit]'),
-                    "upper_limit": request.form.get(f'stage[{index}][upper_limit]'),
-                    "settings": {               # Store additional settings in JSON
-                        "complexity": request.form.get(f'stage[{index}][complexity]', None),
-                        "accidentals": request.form.get(f'stage[{index}][accidentals]', None),
-                        "arpeggiated": request.form.get(f'stage[{index}][arpeggiated]', None),
-                        "intervals": request.form.getlist(f'stage[{index}][intervals][]'),
-                        "scales": request.form.getlist(f'stage[{index}][scales][]'),
-                    }
-                }
-                print(f"stage data is: {stage_data}")
-                stages.append(stage_data)
-                index += 1
-
+            stages = extract_stages_from_form(form)
             print(f"Extracted stages: {stages}")
+
+            if is_competition:
+                create_competition_from_form(stages, title, description)
+                return redirect(url_for('teacher.teacher_tests'))
 
             # Validate group
             group = Group.query.get_or_404(group_id)
@@ -403,3 +388,60 @@ def teacher_test_create():
 
 
 
+
+
+
+
+def extract_stages_from_form(form):
+    stages = []
+    index = 0
+    while f'stage[{index}][task_type]' in form:
+        stage_data = {
+            "task_type": form.get(f'stage[{index}][task_type]'),
+            "count": int(form.get(f'stage[{index}][count]', 0)),
+            # "difficulty": int(request.form.get(f'stage[{index}][difficulty]', 0)),
+            "clef": form.get(f'stage[{index}][clef]'),
+            "lower_limit": form.get(f'stage[{index}][lower_limit]'),
+            "upper_limit": form.get(f'stage[{index}][upper_limit]'),
+            "settings": {               # Store additional settings in JSON
+                "complexity": form.get(f'stage[{index}][complexity]', None),
+                "accidentals": form.get(f'stage[{index}][accidentals]', None),
+                "arpeggiated": form.get(f'stage[{index}][arpeggiated]', None),
+                "intervals": form.getlist(f'stage[{index}][intervals][]'),
+                "scales": form.getlist(f'stage[{index}][scales][]'),
+            }
+        }
+        print(f"stage data is: {stage_data}")
+        stages.append(stage_data)
+        index += 1
+    return stages
+
+
+def create_competition_from_form(stages, title, description):
+    print("Creating competition template instead of test")
+    if not stages:
+        raise ValueError("No stage data provided for competition creation")
+
+    stage_data = stages[0]  # competitions always use a single stage
+
+    new_stage = Stage(
+        task_type=stage_data["task_type"],
+        count=1,  # not relevant for competition
+        clef=stage_data["clef"],
+        lower_limit=stage_data["lower_limit"],
+        upper_limit=stage_data["upper_limit"],
+        settings=stage_data["settings"],
+    )
+    db.session.add(new_stage)
+    db.session.flush()  # get stage.id
+
+    competition = CompetitionTemplate(
+        title=title,
+        description=description,
+        stage_id=new_stage.id,
+        open=True,
+        piano=True,
+    )
+    db.session.add(competition)
+    db.session.commit()
+    print(f"✅ Created competition template {competition.id}")

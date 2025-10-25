@@ -1,10 +1,14 @@
-from flask import Blueprint, render_template, request, session, jsonify
+from flask import Blueprint, render_template, request, session, jsonify, redirect, url_for
 from models import *
 from utils.encryption import encrypt_answer, decrypt_answer
 from decorators.auth import is_student  # Ensure this works on a Blueprint
+from datetime import timedelta
+
+from sqlalchemy import func
+import random
 
 # IMPORT CREATE QUEST
-from services.quest_generator import create_quest
+from services.quest_generator import create_quest, create_competition, build_trials_for_stage
 from assets import piano_svg
 
 student_bp = Blueprint('student', __name__, url_prefix='/student')
@@ -36,16 +40,34 @@ def student():
     ]
 
     practicable_tests = Test.query.filter_by(is_practicable=True).all()
+    
+    
+    subq = (
+        db.session.query(
+            CompetitionCompletion.competition_id,
+            func.max(CompetitionCompletion.correct_answers).label("best_correct")
+        )
+        .group_by(CompetitionCompletion.competition_id)
+        .subquery()
+    )
 
-    # Deduplicate (in case a test is both open and practicable)
-    existing_ids = {t["id"] for g in groups_with_tests for t in g["tests"]}
-    extra_practicable = [
-        {"id": t.id, "title": t.title, "is_practicable": True}
-        for t in practicable_tests
-        if t.id not in existing_ids
+    competitions = (
+        db.session.query(
+            CompetitionTemplate.id,
+            CompetitionTemplate.title,
+            func.coalesce(subq.c.best_correct, 0)
+        )
+        .outerjoin(subq, CompetitionTemplate.id == subq.c.competition_id)
+        .all()
+    )
+
+    competitions_data = [
+        {"id": cid, "title": title, "best_correct": best_correct}
+        for cid, title, best_correct in competitions
     ]
 
-    return render_template('student/groups.html', groups=groups_with_tests, practicable_tests=extra_practicable)
+
+    return render_template('student/groups.html', groups=groups_with_tests, practicable_tests=practicable_tests, competitions=competitions_data)
 
 
 @student_bp.route('/tests/<string:test_id>', methods=['GET', 'POST'])
@@ -143,6 +165,210 @@ def student_test(test_id):
     except Exception as e:
         db.session.rollback()
         return render_template("error.html", error_message=str(e)), 500
+
+
+
+
+
+@student_bp.route('/competitions/<string:competition_id>/start', methods=['GET', 'POST'])
+def start_competition(competition_id):
+    template = CompetitionTemplate.query.get_or_404(competition_id)
+    student_id = session["user_info"]["preferred_username"]
+    student_name = session["user_info"]["name"]
+
+    # Create CompetitionCompletion
+    if request.method == 'POST':
+        # 🧩 Create a new CompetitionCompletion
+        completion = CompetitionCompletion(
+            competition=template,
+            student_id=student_id,
+            student_name=student_name
+        )
+        db.session.add(completion)
+        db.session.commit()
+        print("✅ Competition started:", completion)
+
+        # Redirect to the actual competition run page
+        return redirect(url_for('student.student_competition', completion_id=completion.id))
+
+
+    return render_template(
+        "student/competition_start.html"
+    )
+
+
+
+
+
+@student_bp.route('/competitions/<string:completion_id>', methods=['GET', 'POST'])
+def student_competition(completion_id):
+    """
+    Displays the competition task set. 
+    If no task set exists yet, generates one from the CompetitionTemplate.
+    """
+    completion = CompetitionCompletion.query.get_or_404(completion_id)
+    template = completion.competition
+    stage = template.stage
+
+    if datetime.utcnow() > completion.deadline:
+        return redirect(url_for("student.competition_end", completion_id=completion.id))
+
+    # ==============================
+    #  POST — handle answer checking
+    # ==============================
+
+    if request.method == 'POST':
+        # Handle answer submission
+        selected_answer = request.form["selected_answer"]
+        encrypted_correct_answer = request.form["correct_answer"]
+        correct_answer = decrypt_answer(encrypted_correct_answer)
+
+        is_correct = (selected_answer == correct_answer)
+
+        completion.total_questions += 1
+        if is_correct: 
+            completion.correct_answers += 1
+            remaining = max((completion.deadline - datetime.utcnow()).total_seconds(), 0)
+            extra_time = template.countdown_gain_seconds * (template.countdown_factor ** completion.correct_answers)
+            completion.deadline = datetime.utcnow() + timedelta(seconds=remaining + extra_time)
+        else:
+            remaining = max((completion.deadline - datetime.utcnow()).total_seconds(), 0)
+            completion.deadline -= timedelta(seconds=2)
+        db.session.commit()
+
+        return render_template("student/quest/result.html", 
+                                is_correct=is_correct,
+                                correct_answer=correct_answer,
+                                is_competition=True)
+
+
+    # --------------------------
+    # GET — show random new task
+    # --------------------------
+
+    # Ensure competition has a frozen taskset
+    if not template.task_ids:
+        print(f"Competition {template.title} has no task pool yet — generating via create_competition()")
+        tasks = create_competition(template)
+        template.task_ids = [t.id for t in tasks]
+        db.session.commit()
+
+    task = (
+        Task.query
+        .filter(Task.id.in_(template.task_ids))
+        .order_by(func.random())  # func.rand() if MySQL
+        .first()
+    )
+
+    # note-reading needs more selected-tasks for false answers
+    task_pool = None
+    if stage.task_type == "note-reading":
+        task_pool = (
+            Task.query
+            .filter(Task.id.in_(template.task_ids))
+            .limit(20)  # grab a bunch for variety
+            .all()
+        )
+
+    trial = build_trials_for_stage(stage, [task], quest_id=None, task_pool=task_pool)[0]
+    remaining_seconds = (completion.deadline - datetime.utcnow()).total_seconds()
+
+    return render_template(
+    "student/quest/trial.html",
+        task_type=task.type,
+        answers=trial.possible_answers,
+        musicxml=task.musicxml,
+        encrypted_answer=encrypt_answer(trial.correct_answer),
+        piano_svg=piano_svg,
+        is_competition=True,
+        countdown_seconds=remaining_seconds - 1,
+        completion_id=completion.id,
+    )
+
+
+
+
+
+@student_bp.route('/competitions/<string:completion_id>/end', methods=['GET'])
+def competition_end(completion_id):
+    """
+    Displays final results once the competition time runs out.
+    """
+    completion = CompetitionCompletion.query.get_or_404(completion_id)
+
+    total = completion.total_questions
+    correct = completion.correct_answers
+    percentage = round((correct / total) * 100, 2) if total > 0 else 0
+
+    duration = (completion.deadline - completion.started_at).total_seconds()
+
+    return render_template(
+        "student/competition_end.html",
+        completion=completion,
+        correct=correct,
+        total=total,
+        percentage=percentage,
+        duration=round(duration, 2)
+    )
+
+
+
+
+
+from sqlalchemy import desc
+
+@student_bp.route('/competitions/<string:competition_id>/ranking', methods=['GET'])
+def competition_ranking(competition_id):
+    competition = CompetitionTemplate.query.get_or_404(competition_id)
+
+    # Fetch all completions sorted by score, then time
+    # completions = (
+    #     CompetitionCompletion.query
+    #     .filter_by(competition_id=competition.id)
+    #     .order_by(desc(CompetitionCompletion.correct_answers), CompetitionCompletion.started_at)
+    #     .all()
+    # )
+
+    ranked = (
+        db.session.query(
+            CompetitionCompletion.id,
+            CompetitionCompletion.student_id,
+            CompetitionCompletion.student_name,
+            CompetitionCompletion.correct_answers,
+            CompetitionCompletion.total_questions,
+            CompetitionCompletion.started_at,
+            func.row_number()
+                .over(
+                    partition_by=CompetitionCompletion.student_id,
+                    order_by=desc(CompetitionCompletion.correct_answers)
+                )
+                .label("rank_within_student")
+        )
+        .filter(CompetitionCompletion.competition_id == competition.id)
+        .subquery()
+    )
+
+    # Take only top 3 per student
+    limited = (
+        db.session.query(ranked)
+        .filter(ranked.c.rank_within_student <= 3)
+        .subquery()
+    )
+
+    # Final: order all by best score, then time
+    completions = (
+        db.session.query(limited)
+        .order_by(desc(limited.c.correct_answers), limited.c.started_at)
+        .all()
+    )
+
+    return render_template(
+        "student/competition_ranking.html",
+        competition=competition,
+        completions=completions
+    )
+
+
 
 
 

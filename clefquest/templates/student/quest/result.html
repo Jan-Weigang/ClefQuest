@@ -51,3 +51,10 @@
         background-color: #0056b3;
     }
 </style>
+
+
+{% if is_competition %}
+<script>
+    setTimeout(() => window.location.reload(), 20);
+</script>
+{% endif %}

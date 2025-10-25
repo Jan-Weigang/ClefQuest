@@ -36,7 +36,7 @@
 
         <div id="result" style="margin-top: 20px;"></div>
 
-        {% if is_plenum %}
+        {% if is_plenum or is_competition %}
             <div id="countdown-container" style="text-align:center; margin-top:10px;">
                 <h1 id="countdown-display">{{ countdown }}</h1>
             </div>
@@ -189,6 +189,35 @@
         const timer = setInterval(updateCountdown, 1000);
         </script>
     {% endif %}
+
+
+    {% if is_competition %}
+        <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            let timeLeft = {{ countdown_seconds|round(2) }};  // float precision allowed
+            const display = document.getElementById("countdown-display");
+
+            function updateCountdown() {
+                timeLeft -= 0.1;  // tick every 100 ms
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    display.textContent = "⏰ Zeit abgelaufen!";
+                    display.style.color = "red";
+
+                    // Redirect to end screen
+                    setTimeout(() => {
+                        window.location.href = "{{ url_for('student.competition_end', completion_id=completion_id) }}";
+                    }, 500);
+                } else {
+                    display.textContent = timeLeft.toFixed(1);
+                }
+            }
+
+            const timer = setInterval(updateCountdown, 100);
+        });
+        </script>
+        {% endif %}
+
 
 
 

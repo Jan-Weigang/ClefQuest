@@ -143,6 +143,18 @@
         </div>
     </div>
     <div class="container">
+        <h2>Wettbewerbe</h2>
+        <table>
+            <tr><th>Titel</th><th>Status</th></tr>
+            {% for comp in competitions %}
+                <tr>
+                    <td>{{ comp.title }}</td>
+                    <td>{% if comp.open %}🟢 Offen{% else %}🔴 Geschlossen{% endif %}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <div class="container">
         <div class="form-footer">
             <a href="{{ url_for('teacher.teacher_dashboard') }}" class="submit-btn">Zurück zur Hauptseite</a>
         </div>
