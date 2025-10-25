@@ -95,6 +95,7 @@
                 <thead>
                     <tr>
                         <th>Test</th>
+                        <th>Übung</th>
                         <th>Beschreibung</th>
                         <th>Gruppe</th>
                         <th>Schwierigkeit</th>
@@ -110,7 +111,7 @@
                             </a>
                         </td>
                         <td>
-                            <a href="{{ url_for('teacher.plenum_start', test_id=test.id) }}">
+                            <a href="{{ url_for('practice.plenum_start', test_id=test.id) }}">
                                 Plenum
                             </a></td>
                         </td>

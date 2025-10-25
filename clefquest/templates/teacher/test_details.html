@@ -79,6 +79,38 @@
             </tbody>
         </table>
     </div>
+
+    {% if test.is_practicable %}
+<div class="container">
+    <h2>Übungsaktivität</h2>
+    <p>Wie oft Schüler diesen Test als Übung gestartet haben:</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Schüler</th>
+                <th>Anzahl Übungen</th>
+                <th>Letztes Üben</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student_id, record in practice_data.items() %}
+            <tr>
+                <td>{{ record.student_name }}</td>
+                <td>{{ record.count }}</td>
+                <td>
+                    {% if record.last_practice %}
+                        {{ record.last_practice.strftime("%d.%m.%Y %H:%M") }}
+                    {% else %}
+                        –
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
     <div class="container">
         <div class="form-footer">
             <a href="{{ url_for('teacher.teacher_dashboard') }}" class="submit-btn">Zurück zur Hauptseite</a>

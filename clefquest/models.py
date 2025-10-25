@@ -17,7 +17,14 @@ def generate_nanoid():
     return generate(size=12)  # 12-char unique ID
 
 
-class Group(db.Model):
+class TimestampMixin:
+    """Adds created_at and updated_at timestamps to inheriting models."""
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow,
+                           onupdate=datetime.utcnow, nullable=False)
+    
+
+class Group(db.Model, TimestampMixin):
     id = db.Column(db.String(12), primary_key=True, default=generate_nanoid, unique=True)
     name = db.Column(db.String, nullable=False)
     students = db.Column(db.JSON, nullable=False)  # List of student IDs and names
@@ -26,13 +33,18 @@ class Group(db.Model):
 
 # Tests belong to a group.  
 
-class Test(db.Model):
+class Test(db.Model, TimestampMixin):
     id = db.Column(db.String(12), primary_key=True, default=generate_nanoid, unique=True)
     title = db.Column(db.String, nullable=False)
     description = db.Column(db.Text, nullable=True)
 
     open = db.Column(db.Boolean, default=True)
     piano = db.Column(db.Boolean, default=True)
+
+    is_practicable = db.Column(db.Boolean, nullable=True, default=False)
+    is_global = db.Column(db.Boolean, nullable=True, default=False)
+    teacher_id = db.Column(db.String, nullable=False)       # account
+    teacher_name = db.Column(db.String, nullable=True)      # name
 
     group_id = db.Column(db.String(12), db.ForeignKey('group.id'), nullable=False)
 
@@ -44,10 +56,10 @@ class Test(db.Model):
         return f"<Test id={self.id} title='{self.title}'>"
     
 
-class Quest(db.Model):
+class Quest(db.Model, TimestampMixin):
     id = db.Column(db.String(12), primary_key=True, default=generate_nanoid, unique=True)
-    student_id = db.Column(db.String, nullable=False)  # UUID from SSO
-    student_name = db.Column(db.String, nullable=False)
+    student_id = db.Column(db.String, nullable=False)       # account
+    student_name = db.Column(db.String, nullable=False)     # name
     test_id = db.Column(db.String(12), db.ForeignKey('test.id'), nullable=False)
     start = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     end = db.Column(db.DateTime, default=datetime.utcnow, nullable=True)
@@ -58,7 +70,7 @@ class Quest(db.Model):
         return f"<Quest id={self.id} student='{self.student_name}' test_id={self.test_id}>"
 
 
-class Stage(db.Model):
+class Stage(db.Model, TimestampMixin):
     id = db.Column(db.String(12), primary_key=True, default=generate_nanoid, unique=True)
     test_id = db.Column(db.String(12), db.ForeignKey('test.id'), nullable=False)
 
@@ -78,7 +90,7 @@ class Stage(db.Model):
         return f"<Stage id={self.id} test_id={self.test_id} task_type='{self.task_type} count={self.count} limits={self.lower_limit} and {self.upper_limit}'>"
 
 
-class Trial(db.Model):
+class Trial(db.Model, TimestampMixin):
     id = db.Column(db.String(12), primary_key=True, default=generate_nanoid, unique=True)
     quest_id = db.Column(db.String(12), db.ForeignKey('quest.id'), nullable=False)
     task_id = db.Column(db.String(12), db.ForeignKey('task.id'), nullable=False)  # Reference to Task
@@ -92,11 +104,13 @@ class Trial(db.Model):
     correct_answer = db.Column(db.String, nullable=False) # String of correct Answer
     is_correct = db.Column(db.Boolean, nullable=True)  # Whether the answer was correct
 
+    answered_at = db.Column(db.DateTime, nullable=True)
+
     def __repr__(self):
         return f"<Trial id={self.id} task_id={self.task_id} quest_id={self.quest_id}>"
 
 
-class Task(db.Model):   # Must not be changed or the musicxml will be out of sync
+class Task(db.Model, TimestampMixin):   # Must not be changed or the musicxml will be out of sync
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.String, nullable=False, index=True)  # e.g., 'triad', 'scale'
     name = db.Column(db.String, nullable=False)  # e.g., 'C-Dur'
@@ -200,3 +214,15 @@ class Task(db.Model):   # Must not be changed or the musicxml will be out of syn
 
         # Determine most complex accidental
         self.most_complex_accidental = max(accidentals_found, default=0)
+
+
+
+class PracticeCompletion(db.Model, TimestampMixin):
+    __tablename__ = "practice_completion"
+
+    id = db.Column(db.String(12), primary_key=True, default=generate_nanoid, unique=True)
+    student_id = db.Column(db.String, nullable=False)
+    student_name = db.Column(db.String, nullable=False)
+    test_id = db.Column(db.String, db.ForeignKey("test.id"), nullable=False)
+
+    test = db.relationship("Test", backref="practice_completions")

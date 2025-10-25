@@ -35,7 +35,17 @@ def student():
         for group in db_groups
     ]
 
-    return render_template('student/groups.html', groups=groups_with_tests)
+    practicable_tests = Test.query.filter_by(is_practicable=True).all()
+
+    # Deduplicate (in case a test is both open and practicable)
+    existing_ids = {t["id"] for g in groups_with_tests for t in g["tests"]}
+    extra_practicable = [
+        {"id": t.id, "title": t.title, "is_practicable": True}
+        for t in practicable_tests
+        if t.id not in existing_ids
+    ]
+
+    return render_template('student/groups.html', groups=groups_with_tests, practicable_tests=extra_practicable)
 
 
 @student_bp.route('/tests/<string:test_id>', methods=['GET', 'POST'])
@@ -55,8 +65,9 @@ def student_test(test_id):
             return render_template("error.html", error_message="You do not have access to this test."), 403
 
         student_id = session["user_info"]["preferred_username"]
+        student_name = session["user_info"]["name"]
         print("Student ID:", student_id)
-        quest = Quest.query.filter_by(test_id=test.id, student_id=student_id).first() or create_quest(student_id, test)
+        quest = Quest.query.filter_by(test_id=test.id, student_id=student_id).first() or create_quest(student_id, student_name, test)
         print("Quest:", quest)
 
         # ============================
@@ -79,6 +90,7 @@ def student_test(test_id):
             if current_task.given_answer is None:
                 current_task.given_answer = selected_answer
                 current_task.is_correct = (selected_answer == correct_answer)
+                current_task.answered_at = datetime.utcnow()
                 db.session.commit()
 
             return render_template("student/quest/result.html", 

@@ -83,7 +83,7 @@ def apply_stage_filters(query, stage, mode_false_answers=False):
 
 
 
-def create_quest(student_id, test):
+def create_quest(student_id, student_name, test):
     """
     Creates a Completion and associated Trials for a given test.
 
@@ -101,7 +101,7 @@ def create_quest(student_id, test):
     quest = Quest(
         test_id=test.id,                    # type: ignore
         student_id=student_id,              # type: ignore
-        student_name=student_id             # type: ignore      # Placeholder?
+        student_name=student_name             # type: ignore      # Placeholder?
     )
     db.session.add(quest)
 

@@ -16,6 +16,7 @@ from models import *
 
 from routes.student import student_bp
 from routes.teacher import teacher_bp
+from routes.practice import practice_bp
 from routes.setup import setup_bp
 
 # ===================================
@@ -119,6 +120,7 @@ print(f"✅ Redis Test Value: {value if value else 'No data found'}") # type: ig
 app.register_blueprint(sse, url_prefix="/stream")
 app.register_blueprint(student_bp)
 app.register_blueprint(teacher_bp)
+app.register_blueprint(practice_bp)
 app.register_blueprint(setup_bp)
 
 # ======================================================================

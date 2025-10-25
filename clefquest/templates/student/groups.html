@@ -103,6 +103,22 @@
             {% endif %}
         </div>
         {% endfor %}
+
+        
+    </div>
+
+    <div class="container">
+        {% if practicable_tests %}
+            <h2>Übungstests</h2>
+            <ul>
+                {% for test in practicable_tests %}
+                <li>
+                    {{ test.title }}
+                    <a href="{{ url_for('practice.plenum_start', test_id=test.id) }}" class="btn btn-primary">Üben</a>
+                </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
     </div>
 </body>
 </html>

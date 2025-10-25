@@ -38,16 +38,27 @@ class GroupAdmin(ProtectedModelView):
 
 
 class TestAdmin(ProtectedModelView):
-    column_list = ('id', 'title', 'description', 'group.name', 'open')
-    form_columns = ('title', 'description', 'group_id', 'open')
+    column_list = (
+        'id', 'title', 'description', 'group.name', 'teacher_name',
+        'open', 'is_practicable', 'is_global', 'created_at'
+    )
+    form_columns = (
+        'title', 'description', 'group_id', 'teacher_id', 'teacher_name',
+        'open', 'is_practicable', 'is_global'
+    )
     column_labels = {
         'id': 'ID',
-        'title': 'Title',
-        'description': 'Description',
-        'group.name': 'Group Name',
-        'open': 'Open',
+        'title': 'Titel',
+        'description': 'Beschreibung',
+        'group.name': 'Gruppe',
+        'teacher_id': 'Lehrer-ID',
+        'teacher_name': 'Lehrername',
+        'open': 'Offen',
+        'is_practicable': 'Übungstest',
+        'is_global': 'Global sichtbar',
+        'created_at': 'Erstellt am'
     }
-    column_filters = ['open', 'group.name']
+    column_filters = ['open', 'is_practicable', 'is_global', 'group.name', 'teacher_name']
 
 
 class StageAdmin(ProtectedModelView):
@@ -119,3 +130,13 @@ class TaskAdmin(ProtectedModelView):
     column_formatters = {
         'musicxml_status': musicxml_status
     }
+
+class PracticeCompletionAdmin(ProtectedModelView):
+    column_list = ('id', 'student_id', 'test.title', 'created_at')
+    column_labels = {
+        'id': 'ID',
+        'student_id': 'Schüler-ID',
+        'test.title': 'Testtitel',
+        'created_at': 'Datum',
+    }
+    column_filters = ['test.title', 'student_id']

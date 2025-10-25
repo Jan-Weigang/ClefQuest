@@ -2,6 +2,8 @@ from flask import Blueprint, render_template, request, session, redirect, url_fo
 from decorators.auth import is_teacher
 from models import *
 
+from sqlalchemy import func
+
 # IMPORT CREATE QUEST
 from services.quest_generator import create_quest
 from assets import piano_svg
@@ -205,7 +207,31 @@ def teacher_test_details(test_id):
             (student["correct_tasks"] / student["total_tasks"]) * 100, 2
         ) if student["total_tasks"] > 0 else 0.0
 
-    return render_template("teacher/test_details.html", test=test, student_data=student_data)
+
+    practice_data = {}
+    if test.is_practicable:
+        results = (
+            db.session.query(
+                PracticeCompletion.student_id,
+                PracticeCompletion.student_name,
+                func.count(PracticeCompletion.id).label("count"),
+                func.max(PracticeCompletion.created_at).label("last_practice")
+            )
+            .filter_by(test_id=test.id)
+            .group_by(PracticeCompletion.student_id, PracticeCompletion.student_name)
+            .all()
+        )
+
+        for student_id, student_name, count, last_practice in results:
+            practice_data[student_id] = {
+                "student_name": student_name,
+                "count": count,
+                "last_practice": last_practice,
+            }
+
+    
+
+    return render_template("teacher/test_details.html", test=test, student_data=student_data, practice_data=practice_data)
 
 
 
@@ -287,11 +313,17 @@ def teacher_test_create():
             return render_template('teacher/create_test.html', groups=db_groups)
 
         elif request.method == 'POST':
-            print(request)
+            print(request.form)
             # Retrieve form data
             title = request.form['title']
             description = request.form['description']
             group_id = request.form['group_id']  # Selected group
+            teacher_id = session["user_info"].get("sub")
+            teacher_name = session["user_info"]["preferred_username"]
+
+            is_practicable = 'is_practicable' in request.form
+            is_global = 'is_global' in request.form
+            print("test")
             
             # Extract test stages from form data # TODO Make into function
             stages = []
@@ -326,6 +358,10 @@ def teacher_test_create():
                 title=title,                # type: ignore
                 description=description,    # type: ignore
                 group_id=group.id,          # type: ignore
+                teacher_id=teacher_id,       # type: ignore
+                teacher_name=teacher_name,  # type: ignore
+                is_practicable=is_practicable,    # type: ignore
+                is_global=is_global,        # type: ignore
                 open=True  # Default to open # type: ignore
             )
             db.session.add(new_test)
@@ -367,106 +403,3 @@ def teacher_test_create():
 
 
 
-@teacher_bp.route('/plenum/start/<string:test_id>', methods=['GET', 'POST'])
-@is_teacher
-def plenum_start(test_id):
-    """Prepare and configure plenum mode before launching."""
-    test = Test.query.get_or_404(test_id)
-    redis_key = f"plenum:{test_id}"
-
-    if request.method == "POST":
-        # Always create a fresh quest
-        quest = create_quest("plenum_mode", test)
-        countdown = int(request.form.get("countdown", 20))
-
-        plenum = {
-            "index": 0,
-            "show_solution": False,
-            "countdown": countdown,
-            "quest": {
-                "id": quest.id,
-                "trials": [
-                    {
-                        "id": t.id,
-                        "task_type": t.task.type,
-                        "musicxml": t.task.musicxml,
-                        "correct_answer": t.correct_answer,
-                        "possible_answers": t.possible_answers,
-                        "display_name": t.task.display_name,
-                    }
-                    for t in quest.tasks
-                ],
-            },
-        }
-
-        redis_client.set(redis_key, json.dumps(plenum), ex=3600)
-        return redirect(url_for('teacher.plenum_mode', test_id=test.id))
-
-    return render_template('teacher/plenum_start.html', test=test)
-
-
-
-
-
-
-@teacher_bp.route('/plenum/<string:test_id>', methods=['GET', 'POST'])
-@is_teacher
-def plenum_mode(test_id):
-    """Run test in plenum mode with Redis-backed quest state."""
-    test = Test.query.get_or_404(test_id)
-    redis_key = f"plenum:{test_id}"
-
-    # Try to load plenum quest from Redis
-    plenum_data = redis_client.get(redis_key)
-    if plenum_data:
-        plenum = json.loads(plenum_data)
-    else:
-        return "no plenum test found."
-
-    trials = plenum["quest"]["trials"]
-    total_tasks = len(trials)
-    idx = plenum["index"]
-
-    if request.method == "POST":
-        action = request.form.get("action")
-        if action != "next":
-            return "wrong action"
-        
-        plenum["index"] += 1
-        
-        if plenum["index"] >= total_tasks - 1:
-            redis_client.delete(redis_key)
-            return render_template(
-                "teacher/plenum_completed.html", 
-                test=test,
-                trials=trials,
-                total_tasks=total_tasks
-            )
-            
-        redis_client.set(redis_key, json.dumps(plenum), ex=3600)
-        return redirect(url_for('teacher.plenum_mode', test_id=test_id))
-
-    if idx >= total_tasks:
-        redis_client.delete(redis_key)
-        return render_template(
-            "teacher/plenum_completed.html", 
-            test=test,
-            trials=trials,
-            total_tasks=total_tasks
-        )
-
-    next_trial = trials[idx]
-    progress = round((idx / total_tasks) * 100, 2)
-    countdown = plenum.get("countdown", 10)
-
-    return render_template(
-        "student/quest/trial.html",
-        task_type=next_trial["task_type"],
-        trial_id=next_trial["id"],
-        answers=next_trial["possible_answers"],
-        progress=progress,
-        musicxml=next_trial["musicxml"],
-        piano_svg=piano_svg,
-        is_plenum=True,
-        countdown=countdown
-    )

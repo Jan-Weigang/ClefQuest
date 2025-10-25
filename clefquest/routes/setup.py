@@ -74,7 +74,8 @@ def process_tasks(app):
 
                 processed_tasks = create_scale_tasks(notes_data, clef, processed_tasks, total_tasks)
                 sse.publish({"message": f"{amount_scales} Tonleiter-Aufgaben hinzugefügt"}, type="milestone")
-        
+
+
             print("Finished Processing")
             sse.publish({"message": "Fertig!"}, type="update")
             sse.publish({"message": "Fertig!"}, type="milestone")

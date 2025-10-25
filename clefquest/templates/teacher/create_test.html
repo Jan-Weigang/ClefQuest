@@ -497,6 +497,12 @@
             <label for="description">Beschreibung:</label>
             <textarea id="description" name="description" rows="4"></textarea>
 
+            <label for="is_practicable">Für Schüler als Übung sichtbar:</label>
+            <input type="checkbox" id="is_practicable" name="is_practicable">
+
+            <label for="is_global">Global für alle Lehrer sichtbar:</label>
+            <input type="checkbox" id="is_global" name="is_global">
+
             <label for="group_id">Gruppe auswählen:</label>
             <select id="group_id" name="group_id" required>
                 {% for group in groups %}
